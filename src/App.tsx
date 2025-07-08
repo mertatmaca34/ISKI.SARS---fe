@@ -1,0 +1,65 @@
+import React, { useState } from 'react';
+import { LoginForm } from './components/Auth/LoginForm';
+import { Header } from './components/Layout/Header';
+import { Sidebar } from './components/Layout/Sidebar';
+import { Dashboard } from './components/Dashboard/Dashboard';
+import { TemplateList } from './components/Templates/TemplateList';
+import { TagList } from './components/Tags/TagList';
+import { UserList } from './components/Users/UserList';
+import { LogList } from './components/Logs/LogList';
+import { Settings } from './components/Settings/Settings';
+import { authStore } from './store/authStore';
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(authStore.getIsAuthenticated());
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    authStore.logout();
+    setIsAuthenticated(false);
+    setActiveTab('dashboard');
+  };
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'templates':
+        return <TemplateList />;
+      case 'tags':
+        return <TagList />;
+      case 'users':
+        return <UserList />;
+      case 'logs':
+        return <LogList />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  if (!isAuthenticated) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header onLogout={handleLogout} />
+      <div className="flex">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <main className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {renderContent()}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default App;
