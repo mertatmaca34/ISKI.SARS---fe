@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   FileText, 
   Tags, 
@@ -12,11 +12,16 @@ import {
 import { DashboardCard } from './DashboardCard';
 import { SystemStatus } from './SystemStatus';
 import { DataChart } from './DataChart';
-import { dataStore } from '../../store/dataStore';
+import { dashboardService } from '../../services';
 
 export const Dashboard: React.FC = () => {
-  const stats = dataStore.getDashboardStats();
-  const systemMetrics = dataStore.getSystemMetrics();
+  const [stats, setStats] = useState(dashboardService.stats as any);
+  const [systemMetrics, setSystemMetrics] = useState([] as any[]);
+
+  useEffect(() => {
+    dashboardService.stats().then(setStats);
+    dashboardService.metrics().then(setSystemMetrics);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -84,5 +89,4 @@ export const Dashboard: React.FC = () => {
         />
       </div>
     </div>
-  );
-};
+  );};
