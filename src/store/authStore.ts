@@ -1,21 +1,27 @@
 import { User } from '../types';
+import { authService, AccessToken } from '../services/authService';
+
+interface StoredAuth {
+  token: string;
+  refreshToken: string;
+  user: User | null;
+}
 
 class AuthStore {
   private user: User | null = null;
   private isAuthenticated = false;
+  private token: string | null = null;
+  private refreshToken: string | null = null;
 
   constructor() {
-    // Initialize with mock admin user for demo
-    this.user = {
-      id: '1',
-      username: 'admin',
-      email: 'admin@iski.gov.tr',
-      role: 'admin',
-      createdAt: '2024-01-01T00:00:00Z',
-      lastLogin: new Date().toISOString(),
-      isActive: true
-    };
-    this.isAuthenticated = true;
+    const stored = localStorage.getItem('auth');
+    if (stored) {
+      const parsed: StoredAuth = JSON.parse(stored);
+      this.user = parsed.user;
+      this.token = parsed.token;
+      this.refreshToken = parsed.refreshToken;
+      this.isAuthenticated = !!parsed.token;
+    }
   }
 
   getCurrentUser(): User | null {
@@ -26,43 +32,34 @@ class AuthStore {
     return this.isAuthenticated;
   }
 
-  login(username: string, password: string): Promise<User> {
-    return new Promise((resolve, reject) => {
-      // Mock authentication
-      if (username === 'admin' && password === 'admin123') {
-        this.user = {
-          id: '1',
-          username: 'admin',
-          email: 'admin@iski.gov.tr',
-          role: 'admin',
-          createdAt: '2024-01-01T00:00:00Z',
-          lastLogin: new Date().toISOString(),
-          isActive: true
-        };
-        this.isAuthenticated = true;
-        resolve(this.user);
-      } else if (username === 'operator' && password === 'op123') {
-        this.user = {
-          id: '2',
-          username: 'operator',
-          email: 'operator@iski.gov.tr',
-          role: 'operator',
-          createdAt: '2024-01-01T00:00:00Z',
-          lastLogin: new Date().toISOString(),
-          isActive: true
-        };
-        this.isAuthenticated = true;
-        resolve(this.user);
-      } else {
-        reject(new Error('Kullanıcı adı veya şifre hatalı'));
-      }
-    });
+  getAccessToken(): string | null {
+    return this.token;
+  }
+
+  async login(email: string, password: string): Promise<User> {
+    const token = await authService.login({ email, password });
+    this.setSession(token);
+    // Ideally backend returns user info; here we call refresh token to get user if needed
+    this.user = { id: '0', username: email, email, role: 'operator', createdAt: '', isActive: true };
+    this.isAuthenticated = true;
+    return this.user;
+  }
+
+  private setSession(token: AccessToken) {
+    this.token = token.token;
+    this.refreshToken = token.refreshToken;
+    localStorage.setItem(
+      'auth',
+      JSON.stringify({ token: this.token, refreshToken: this.refreshToken, user: this.user })
+    );
   }
 
   logout() {
     this.user = null;
     this.isAuthenticated = false;
+    this.token = null;
+    this.refreshToken = null;
+    localStorage.removeItem('auth');
   }
 }
-
 export const authStore = new AuthStore();

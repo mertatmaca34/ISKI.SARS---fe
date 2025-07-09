@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
 import { ReportTemplateTag } from '../../types';
-import { dataStore } from '../../store/dataStore';
+import { tagService, templateService } from '../../services';
 
 export const TagList: React.FC = () => {
-  const [tags, setTags] = useState<ReportTemplateTag[]>(dataStore.getTags());
+  const [tags, setTags] = useState<ReportTemplateTag[]>([]);
+  const [templates, setTemplates] = useState<{ id: number; name: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('all');
 
-  const templates = dataStore.getTemplates();
+  useEffect(() => {
+    tagService
+      .list({ pageNumber: 0, pageSize: 100 })
+      .then((res) => setTags(res.items));
+    templateService
+      .list({ pageNumber: 0, pageSize: 50 })
+      .then((res) => setTemplates(res.items));
+  }, []);
 
   const filteredTags = tags.filter(tag => {
     const matchesSearch = tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -17,8 +25,8 @@ export const TagList: React.FC = () => {
     return matchesSearch && matchesTemplate;
   });
 
-  const getTemplateName = (templateId: string) => {
-    const template = templates.find(t => t.id === templateId);
+  const getTemplateName = (templateId: string | number) => {
+    const template = templates.find(t => t.id === Number(templateId));
     return template?.name || 'Bilinmiyor';
   };
 
@@ -143,5 +151,4 @@ export const TagList: React.FC = () => {
         </div>
       )}
     </div>
-  );
-};
+  );};

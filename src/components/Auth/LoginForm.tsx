@@ -7,7 +7,7 @@ interface LoginFormProps {
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      await authStore.login(username, password);
+      await authStore.login(email, password);
       onLogin();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Giriş yapılamadı');
@@ -50,14 +50,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             )}
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Kullanıcı Adı
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                E-posta
               </label>
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 required
               />
@@ -100,5 +100,4 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         </div>
       </div>
     </div>
-  );
-};
+  );};

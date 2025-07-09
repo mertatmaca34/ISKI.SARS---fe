@@ -1,30 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Power, Search } from 'lucide-react';
 import { ReportTemplate } from '../../types';
-import { dataStore } from '../../store/dataStore';
+import { templateService, tagService } from '../../services';
 
 export const TemplateList: React.FC = () => {
-  const [templates, setTemplates] = useState<ReportTemplate[]>(dataStore.getTemplates());
+  const [templates, setTemplates] = useState<ReportTemplate[]>([]);
+  const [tags, setTags] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+
+  useEffect(() => {
+    templateService
+      .list({ pageNumber: 0, pageSize: 50 })
+      .then((res) => setTemplates(res.items))
+      .catch(() => setTemplates([]));
+    tagService
+      .list({ pageNumber: 0, pageSize: 100 })
+      .then((res) => {
+        const grouped: Record<string, number> = {};
+        res.items.forEach((t) => {
+          grouped[t.reportTemplateId] = (grouped[t.reportTemplateId] || 0) + 1;
+        });
+        setTags(grouped);
+      });
+  }, []);
 
   const filteredTemplates = templates.filter(template =>
     template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     template.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleToggleActive = (id: string) => {
-    const template = templates.find(t => t.id === id);
-    if (template) {
-      dataStore.updateTemplate(id, { isActive: !template.isActive });
-      setTemplates(dataStore.getTemplates());
+  const handleToggleActive = async (id: string) => {
+    const template = templates.find((t) => t.id === id);
+    if (!template) return;
+    try {
+      await templateService.update({
+        ...template,
+        isActive: !template.isActive,
+      });
+    } finally {
+      templateService
+        .list({ pageNumber: 0, pageSize: 50 })
+        .then((res) => setTemplates(res.items));
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Bu şablonu silmek istediğinizden emin misiniz?')) {
-      dataStore.deleteTemplate(id);
-      setTemplates(dataStore.getTemplates());
+      await templateService.delete(id as any);
+      templateService
+        .list({ pageNumber: 0, pageSize: 50 })
+        .then((res) => setTemplates(res.items));
     }
   };
 
@@ -96,7 +122,7 @@ export const TemplateList: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Etiket Sayısı:</span>
-                <span>{dataStore.getTagsByTemplateId(template.id).length}</span>
+                <span>{tags[template.id] || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Durum:</span>
