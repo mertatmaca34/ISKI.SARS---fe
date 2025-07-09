@@ -8,6 +8,8 @@ import { TagList } from './components/Tags/TagList';
 import { UserList } from './components/Users/UserList';
 import { LogList } from './components/Logs/LogList';
 import { Settings } from './components/Settings/Settings';
+import { InstantValueList } from './components/InstantValues/InstantValueList';
+import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
 import { authStore } from './store/authStore';
 
 function App() {
@@ -32,6 +34,10 @@ function App() {
         return <TemplateList />;
       case 'tags':
         return <TagList />;
+      case 'instantvalues':
+        return <InstantValueList />;
+      case 'operationclaims':
+        return <OperationClaimList />;
       case 'users':
         return <UserList />;
       case 'logs':

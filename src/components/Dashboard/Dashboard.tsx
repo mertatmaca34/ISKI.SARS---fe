@@ -12,11 +12,11 @@ import {
 import { DashboardCard } from './DashboardCard';
 import { SystemStatus } from './SystemStatus';
 import { DataChart } from './DataChart';
-import { dashboardService } from '../../services';
+import { dashboardService, DashboardStats, SystemMetric } from '../../services';
 
 export const Dashboard: React.FC = () => {
-  const [stats, setStats] = useState(dashboardService.stats as any);
-  const [systemMetrics, setSystemMetrics] = useState([] as any[]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>([]);
 
   useEffect(() => {
     dashboardService.stats().then(setStats);
