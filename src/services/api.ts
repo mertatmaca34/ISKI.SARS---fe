@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL || '';
+// Base address for backend API
+// Defaults to local development server if env variable not provided
+const API_URL = import.meta.env.VITE_API_URL || 'https://localhost:444/';
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(API_URL + url, {
