@@ -4,3 +4,6 @@ export * from './templateService';
 export * from './tagService';
 export * from './userService';
 export * from './dashboardService';
+export * from './operationClaimService';
+export * from './userOperationClaimService';
+export * from './instantValueService';

@@ -7,7 +7,7 @@ export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplate[]>([]);
   const [tags, setTags] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [, setShowCreateForm] = useState(false);
 
   useEffect(() => {
     templateService
@@ -47,7 +47,7 @@ export const TemplateList: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Bu şablonu silmek istediğinizden emin misiniz?')) {
-      await templateService.delete(id as any);
+      await templateService.delete(Number(id));
       templateService
         .list({ pageNumber: 0, pageSize: 50 })
         .then((res) => setTemplates(res.items));

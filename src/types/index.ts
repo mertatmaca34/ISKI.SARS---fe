@@ -34,7 +34,7 @@ export interface ReportTemplateTag {
 export interface InstantValue {
   id: string;
   tagId: string;
-  value: any;
+  value: string | number | boolean;
   quality: 'good' | 'bad' | 'uncertain';
   timestamp: string;
 }

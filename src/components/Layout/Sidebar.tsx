@@ -1,12 +1,14 @@
 import React from 'react';
-import { 
-  BarChart3, 
-  FileText, 
-  Tags, 
-  Users, 
-  Settings, 
+import {
+  BarChart3,
+  FileText,
+  Tags,
+  Users,
+  Settings,
   Activity,
-  Shield
+  Shield,
+  Database,
+  Key
 } from 'lucide-react';
 import { authStore } from '../../store/authStore';
 
@@ -17,12 +19,13 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   const currentUser = authStore.getCurrentUser();
-  const isAdmin = currentUser?.role === 'admin';
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, roles: ['admin', 'operator'] },
     { id: 'templates', label: 'Rapor Şablonları', icon: FileText, roles: ['admin', 'operator'] },
     { id: 'tags', label: 'Etiketler', icon: Tags, roles: ['admin', 'operator'] },
+    { id: 'instantvalues', label: 'Anlık Değerler', icon: Database, roles: ['admin', 'operator'] },
+    { id: 'operationclaims', label: 'Yetkiler', icon: Key, roles: ['admin'] },
     { id: 'users', label: 'Kullanıcı Yönetimi', icon: Users, roles: ['admin'] },
     { id: 'logs', label: 'Sistem Logları', icon: Shield, roles: ['admin'] },
     { id: 'settings', label: 'Ayarlar', icon: Settings, roles: ['admin'] }
