@@ -1,36 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Search, UserCheck, UserX, Edit2 } from 'lucide-react';
 import { User } from '../../types';
+import { userService } from '../../services';
 
 export const UserList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      username: 'admin',
-      email: 'admin@iski.gov.tr',
-      role: 'admin',
-      createdAt: '2024-01-01T00:00:00Z',
-      lastLogin: '2024-01-15T10:30:00Z',
-      isActive: true
-    },
-    {
-      id: '2',
-      username: 'operator1',
-      email: 'operator1@iski.gov.tr',
-      role: 'operator',
-      createdAt: '2024-01-02T00:00:00Z',
-      lastLogin: '2024-01-15T09:15:00Z',
-      isActive: true
-    },
-    {
-      id: '3',
-      username: 'yeni_kullanici',
-      email: 'yeni@iski.gov.tr',
-      role: 'pending',
-      createdAt: '2024-01-15T08:00:00Z',
-      isActive: false
-    }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    userService
+      .list({ pageNumber: 0, pageSize: 50 })
+      .then((res) =>
+        setUsers(
+          res.items.map((u) => ({
+            id: u.id.toString(),
+            username: `${u.firstName} ${u.lastName}`,
+            email: u.email,
+            role: 'operator',
+            createdAt: new Date().toISOString(),
+            isActive: u.status ?? true,
+          }))
+        )
+      )
+      .catch(() => setUsers([]));
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
 
