@@ -13,14 +13,21 @@ import { DashboardCard } from './DashboardCard';
 import { SystemStatus } from './SystemStatus';
 import { DataChart } from './DataChart';
 import { dashboardService, DashboardStats, SystemMetric } from '../../services';
+import { dataStore } from '../../store/dataStore';
 
 export const Dashboard: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>([]);
+  const [stats, setStats] = useState<DashboardStats>(dataStore.getDashboardStats());
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>(dataStore.getSystemMetrics());
 
   useEffect(() => {
-    dashboardService.stats().then(setStats);
-    dashboardService.metrics().then(setSystemMetrics);
+    dashboardService
+      .stats()
+      .then(setStats)
+      .catch(() => setStats(dataStore.getDashboardStats()));
+    dashboardService
+      .metrics()
+      .then(setSystemMetrics)
+      .catch(() => setSystemMetrics(dataStore.getSystemMetrics()));
   }, []);
 
   return (
