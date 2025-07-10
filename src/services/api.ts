@@ -1,9 +1,12 @@
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { authStore } from '../store/authStore';
+const API_URL = import.meta.env.VITE_API_URL || 'https://localhost:444';
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const token = authStore.getAccessToken();
   const response = await fetch(API_URL + url, {
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
     ...options,

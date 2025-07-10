@@ -9,6 +9,12 @@ export interface UserDto {
   status?: boolean;
 }
 
+export interface ChangePasswordDto {
+  userId: number;
+  oldPassword: string;
+  newPassword: string;
+}
+
 export const userService = {
   getById: (id: number) => api.get<UserDto>(`/api/users/${id}`),
   list: (page: PageRequest) =>
@@ -17,5 +23,7 @@ export const userService = {
     api.post<UserDto>('/api/users', data),
   update: (data: UserDto) => api.put<UserDto>('/api/users', data),
   delete: (id: number) => api.delete<unknown>(`/api/users/${id}`),
+  changePassword: (data: ChangePasswordDto) =>
+    api.put<unknown>('/api/users/change-password', data),
 };
 
