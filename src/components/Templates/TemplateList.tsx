@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Power, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Power, Search, RefreshCcw } from 'lucide-react';
 import {
   templateService,
   tagService,
@@ -12,7 +12,7 @@ export const TemplateList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [, setShowCreateForm] = useState(false);
 
-  useEffect(() => {
+  const loadData = () => {
     templateService
       .list({ pageNumber: 0, pageSize: 50 })
       .then((res) => setTemplates(res.items))
@@ -26,6 +26,10 @@ export const TemplateList: React.FC = () => {
         });
         setTags(grouped);
       });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const filteredTemplates = templates.filter((template) =>
@@ -44,6 +48,10 @@ export const TemplateList: React.FC = () => {
     }
   };
 
+  const handleRefresh = () => {
+    loadData();
+  };
+
   const handleDelete = async (id: number) => {
     if (window.confirm('Bu şablonu silmek istediğinizden emin misiniz?')) {
       await templateService.delete(Number(id));
@@ -57,13 +65,22 @@ export const TemplateList: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Rapor Şablonları</h1>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
-        >
-          <Plus className="h-5 w-5" />
-          <span>Yeni Şablon</span>
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleRefresh}
+            className="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300 flex items-center space-x-1 transition-colors"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            <span>Yenile</span>
+          </button>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Yeni Şablon</span>
+          </button>
+        </div>
       </div>
 
       {/* Search */}
