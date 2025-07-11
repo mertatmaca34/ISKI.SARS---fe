@@ -1,6 +1,42 @@
 import { User } from '../types';
 import { authService, AccessToken } from '../services/authService';
 
+function parseJwt(token: string): Record<string, unknown> | null {
+  try {
+    const base64 = token.split('.')[1];
+    const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+function userFromToken(token: string, fallbackEmail = ''): User | null {
+  const payload = parseJwt(token);
+  if (!payload) return null;
+  const id =
+    (payload['nameid'] as string) ||
+    (payload['sub'] as string) ||
+    (payload['userId'] as string) ||
+    (payload['user_id'] as string) ||
+    (payload[
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+    ] as string) ||
+    '';
+  const username =
+    (payload['unique_name'] as string) ||
+    (payload['name'] as string) ||
+    fallbackEmail;
+  const email = (payload['email'] as string) || fallbackEmail;
+  const role =
+    (payload['role'] as string) ||
+    (payload[
+      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+    ] as string) ||
+    'operator';
+  return { id, username, email, role, createdAt: '', isActive: true };
+}
+
 interface StoredAuth {
   token: string;
   refreshToken: string;
@@ -17,7 +53,7 @@ class AuthStore {
     const stored = localStorage.getItem('auth');
     if (stored) {
       const parsed: StoredAuth = JSON.parse(stored);
-      this.user = parsed.user;
+      this.user = parsed.user || (parsed.token ? userFromToken(parsed.token) : null);
       this.token = parsed.token;
       this.refreshToken = parsed.refreshToken;
       this.isAuthenticated = !!parsed.token;
@@ -39,8 +75,16 @@ class AuthStore {
   async login(email: string, password: string): Promise<User> {
     try {
       const token = await authService.login({ email, password });
-      // Ideally backend returns user info; here we call refresh token to get user if needed
-      this.user = { id: '0', username: email, email, role: 'operator', createdAt: '', isActive: true };
+      const user = userFromToken(token.token, email);
+      this.user =
+        user || {
+          id: '',
+          username: email,
+          email,
+          role: 'operator',
+          createdAt: '',
+          isActive: true,
+        };
       this.isAuthenticated = true;
       this.setSession(token);
       return this.user;
