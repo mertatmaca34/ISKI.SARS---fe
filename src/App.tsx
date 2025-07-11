@@ -10,6 +10,7 @@ import { LogList } from './components/Logs/LogList';
 import { Settings } from './components/Settings/Settings';
 import { InstantValueList } from './components/InstantValues/InstantValueList';
 import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
+import { UserOperationClaimList } from './components/UserOperationClaims/UserOperationClaimList';
 import { authStore } from './store/authStore';
 
 function App() {
@@ -38,6 +39,8 @@ function App() {
         return <InstantValueList />;
       case 'operationclaims':
         return <OperationClaimList />;
+      case 'useroperationclaims':
+        return <UserOperationClaimList />;
       case 'users':
         return <UserList />;
       case 'logs':
