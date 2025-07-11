@@ -9,15 +9,23 @@ export interface ReportTemplateDto {
 }
 
 export interface PageRequest {
-  pageNumber: number;
-  pageSize: number;
+  index: number;
+  size: number;
+}
+
+export interface DynamicQuery {
+  filters?: Array<{ field: string; operator: string; value: string }>;
+  sorts?: Array<{ field: string; direction: string }>;
 }
 
 export interface PaginatedResponse<T> {
   items: T[];
-  pageIndex: number;
-  pageSize: number;
+  index: number;
+  size: number;
   count: number;
+  pages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
 }
 
 export const templateService = {
@@ -27,9 +35,9 @@ export const templateService = {
   update: (data: ReportTemplateDto) =>
     api.put<ReportTemplateDto>('/api/reporttemplates', data),
   delete: (id: number) => api.delete<unknown>(`/api/reporttemplates/${id}`),
-  list: (page: PageRequest) =>
+  list: (_page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ReportTemplateDto>>(
-      `/api/reporttemplates/list?pageNumber=${page.pageNumber}&pageSize=${page.pageSize}`,
-      {}
+      '/api/ReportTemplates/list',
+      query ?? { filters: [], sorts: [] }
     ),
 };

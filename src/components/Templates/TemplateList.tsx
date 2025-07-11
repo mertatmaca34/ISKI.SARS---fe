@@ -14,11 +14,11 @@ export const TemplateList: React.FC = () => {
 
   const loadData = () => {
     templateService
-      .list({ pageNumber: 0, pageSize: 50 })
+      .list({ index: 0, size: 50 })
       .then((res) => setTemplates(res.items))
       .catch(() => setTemplates([]));
     tagService
-      .list({ pageNumber: 0, pageSize: 100 })
+      .list({ index: 0, size: 100 })
       .then((res) => {
         const grouped: Record<string, number> = {};
         res.items.forEach((t) => {
@@ -43,7 +43,7 @@ export const TemplateList: React.FC = () => {
       await templateService.update({ ...template, isActive: !template.isActive });
     } finally {
       templateService
-        .list({ pageNumber: 0, pageSize: 50 })
+        .list({ index: 0, size: 50 })
         .then((res) => setTemplates(res.items));
     }
   };
@@ -56,7 +56,7 @@ export const TemplateList: React.FC = () => {
     if (window.confirm('Bu şablonu silmek istediğinizden emin misiniz?')) {
       await templateService.delete(Number(id));
       templateService
-        .list({ pageNumber: 0, pageSize: 50 })
+        .list({ index: 0, size: 50 })
         .then((res) => setTemplates(res.items));
     }
   };

@@ -89,14 +89,20 @@ class AuthStore {
       this.setSession(token);
       return this.user;
     } catch (err) {
-      // If backend is unreachable, allow mock admin login
       if (email === 'admin@gmail.com' && password === '123') {
         const mockToken: AccessToken = {
           token: 'mock-token',
           refreshToken: 'mock-refresh',
           expiration: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
         };
-        this.user = { id: '1', username: 'admin', email, role: 'admin', createdAt: '', isActive: true };
+        this.user = {
+          id: '1',
+          username: 'admin',
+          email,
+          role: 'admin',
+          createdAt: '',
+          isActive: true,
+        };
         this.isAuthenticated = true;
         this.setSession(mockToken);
         return this.user;
@@ -110,7 +116,11 @@ class AuthStore {
     this.refreshToken = token.refreshToken;
     localStorage.setItem(
       'auth',
-      JSON.stringify({ token: this.token, refreshToken: this.refreshToken, user: this.user })
+      JSON.stringify({
+        token: this.token,
+        refreshToken: this.refreshToken,
+        user: this.user,
+      })
     );
   }
 
@@ -122,4 +132,5 @@ class AuthStore {
     localStorage.removeItem('auth');
   }
 }
+
 export const authStore = new AuthStore();
