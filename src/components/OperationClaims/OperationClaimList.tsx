@@ -6,7 +6,7 @@ export const OperationClaimList: React.FC = () => {
 
   useEffect(() => {
     operationClaimService
-      .list({ pageNumber: 0, pageSize: 50 })
+      .list({ index: 0, size: 50 })
       .then((res) => setClaims(res.items))
       .catch(() => setClaims([]));
   }, []);
