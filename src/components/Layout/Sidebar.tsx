@@ -8,7 +8,8 @@ import {
   Activity,
   Shield,
   Database,
-  Key
+  Key,
+  UserCog
 } from 'lucide-react';
 import { authStore } from '../../store/authStore';
 
@@ -26,6 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'tags', label: 'Etiketler', icon: Tags, roles: ['admin', 'operator'] },
     { id: 'instantvalues', label: 'Anlık Değerler', icon: Database, roles: ['admin', 'operator'] },
     { id: 'operationclaims', label: 'Yetkiler', icon: Key, roles: ['admin'] },
+    { id: 'useroperationclaims', label: 'Kullanıcı Yetkileri', icon: UserCog, roles: ['admin'] },
     { id: 'users', label: 'Kullanıcı Yönetimi', icon: Users, roles: ['admin'] },
     { id: 'logs', label: 'Sistem Logları', icon: Shield, roles: ['admin'] },
     { id: 'settings', label: 'Ayarlar', icon: Settings, roles: ['admin'] }
