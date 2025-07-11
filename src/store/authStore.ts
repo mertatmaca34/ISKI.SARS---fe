@@ -3,12 +3,38 @@ import { authService, AccessToken } from '../services/authService';
 
 function parseJwt(token: string): Record<string, unknown> | null {
   try {
-    const base64 = token.split('.')[1];
-    const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+    const json = atob(padded);
     return JSON.parse(json);
   } catch {
     return null;
   }
+}
+
+function payloadToUser(payload: Record<string, unknown> | null, fallbackEmail?: string): User | null {
+  if (!payload) return null;
+  const get = (key: string) => payload[key] as string | undefined;
+  const id =
+    get('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier') ||
+    get('nameid') ||
+    get('sub') ||
+    '';
+  const username =
+    get('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name') ||
+    get('unique_name') ||
+    fallbackEmail ||
+    '';
+  const email =
+    get('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress') ||
+    get('email') ||
+    fallbackEmail ||
+    '';
+  const role =
+    get('http://schemas.microsoft.com/ws/2008/06/identity/claims/role') ||
+    get('role') ||
+    'operator';
+  return { id, username, email, role: role.toLowerCase() as User['role'], createdAt: '', isActive: true };
 }
 
 interface StoredAuth {
@@ -27,18 +53,7 @@ class AuthStore {
     const stored = localStorage.getItem('auth');
     if (stored) {
       const parsed: StoredAuth = JSON.parse(stored);
-      this.user = parsed.user || (parsed.token ? ((): User | null => {
-        const payload = parseJwt(parsed.token);
-        if (!payload) return null;
-        return {
-          id: (payload.nameid as string) || (payload.sub as string) || '',
-          username: (payload.unique_name as string) || '',
-          email: (payload.email as string) || '',
-          role: (payload.role as string) || 'operator',
-          createdAt: '',
-          isActive: true,
-        };
-      })() : null);
+      this.user = parsed.user || (parsed.token ? payloadToUser(parseJwt(parsed.token)) : null);
       this.token = parsed.token;
       this.refreshToken = parsed.refreshToken;
       this.isAuthenticated = !!parsed.token;
@@ -60,15 +75,15 @@ class AuthStore {
   async login(email: string, password: string): Promise<User> {
     try {
       const token = await authService.login({ email, password });
-      const payload = parseJwt(token.token);
-      this.user = {
-        id: (payload?.nameid as string) || (payload?.sub as string) || '',
-        username: (payload?.unique_name as string) || email,
-        email: (payload?.email as string) || email,
-        role: (payload?.role as string) || 'operator',
-        createdAt: '',
-        isActive: true,
-      };
+      this.user =
+        payloadToUser(parseJwt(token.token), email) || {
+          id: '',
+          username: email,
+          email,
+          role: 'operator',
+          createdAt: '',
+          isActive: true,
+        };
       this.isAuthenticated = true;
       this.setSession(token);
       return this.user;
