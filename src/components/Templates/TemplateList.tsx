@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Power, Search } from 'lucide-react';
-import { ReportTemplate } from '../../types';
-import { templateService, tagService } from '../../services';
+import {
+  templateService,
+  tagService,
+  ReportTemplateDto,
+} from '../../services';
 
 export const TemplateList: React.FC = () => {
-  const [templates, setTemplates] = useState<ReportTemplate[]>([]);
+  const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
   const [tags, setTags] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [, setShowCreateForm] = useState(false);
@@ -25,19 +28,15 @@ export const TemplateList: React.FC = () => {
       });
   }, []);
 
-  const filteredTemplates = templates.filter(template =>
-    template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    template.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTemplates = templates.filter((template) =>
+    template.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleToggleActive = async (id: string) => {
+  const handleToggleActive = async (id: number) => {
     const template = templates.find((t) => t.id === id);
     if (!template) return;
     try {
-      await templateService.update({
-        ...template,
-        isActive: !template.isActive,
-      });
+      await templateService.update({ ...template, isActive: !template.isActive });
     } finally {
       templateService
         .list({ pageNumber: 0, pageSize: 50 })
@@ -45,7 +44,7 @@ export const TemplateList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm('Bu şablonu silmek istediğinizden emin misiniz?')) {
       await templateService.delete(Number(id));
       templateService
@@ -82,11 +81,14 @@ export const TemplateList: React.FC = () => {
       {/* Templates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredTemplates.map((template) => (
-          <div key={template.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div
+            key={template.id}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+          >
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+                {/* description not provided by API */}
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -117,8 +119,8 @@ export const TemplateList: React.FC = () => {
                 <span className="font-mono text-xs">{template.opcEndpoint}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Toplama Aralığı:</span>
-                <span>{template.collectionInterval}s</span>
+                <span className="text-gray-600">Çekme Aralığı:</span>
+                <span>{template.pullInterval}s</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Etiket Sayısı:</span>
@@ -136,12 +138,7 @@ export const TemplateList: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>Oluşturan: {template.createdBy}</span>
-                <span>{new Date(template.createdAt).toLocaleDateString('tr-TR')}</span>
-              </div>
-            </div>
+            {/* metadata like creator or date not provided by API */}
           </div>
         ))}
       </div>

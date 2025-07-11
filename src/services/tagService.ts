@@ -16,5 +16,8 @@ export const tagService = {
     api.put<ReportTemplateTagDto>('/api/reporttemplatetags', data),
   delete: (id: number) => api.delete<unknown>(`/api/reporttemplatetags/${id}`),
   list: (page: PageRequest) =>
-    api.post<PaginatedResponse<ReportTemplateTagDto>>('/api/reporttemplatetags/list?pageIndex=' + page.pageNumber + '&pageSize=' + page.pageSize, {}),
+    api.post<PaginatedResponse<ReportTemplateTagDto>>(
+      `/api/reporttemplatetags/list?pageNumber=${page.pageNumber}&pageSize=${page.pageSize}`,
+      {}
+    ),
 };

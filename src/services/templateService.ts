@@ -28,5 +28,8 @@ export const templateService = {
     api.put<ReportTemplateDto>('/api/reporttemplates', data),
   delete: (id: number) => api.delete<unknown>(`/api/reporttemplates/${id}`),
   list: (page: PageRequest) =>
-    api.post<PaginatedResponse<ReportTemplateDto>>('/api/reporttemplates/list?pageIndex=' + page.pageNumber + '&pageSize=' + page.pageSize, {}),
+    api.post<PaginatedResponse<ReportTemplateDto>>(
+      `/api/reporttemplates/list?pageNumber=${page.pageNumber}&pageSize=${page.pageSize}`,
+      {}
+    ),
 };

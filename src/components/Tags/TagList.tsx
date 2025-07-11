@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
-import { ReportTemplateTag } from '../../types';
-import { tagService, templateService } from '../../services';
+import {
+  tagService,
+  templateService,
+  ReportTemplateTagDto,
+  ReportTemplateDto,
+} from '../../services';
 
 export const TagList: React.FC = () => {
-  const [tags, setTags] = useState<ReportTemplateTag[]>([]);
-  const [templates, setTemplates] = useState<{ id: number; name: string }[]>([]);
+  const [tags, setTags] = useState<ReportTemplateTagDto[]>([]);
+  const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('all');
 
@@ -18,30 +22,20 @@ export const TagList: React.FC = () => {
       .then((res) => setTemplates(res.items));
   }, []);
 
-  const filteredTags = tags.filter(tag => {
-    const matchesSearch = tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tag.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTemplate = selectedTemplate === 'all' || tag.templateId === selectedTemplate;
+  const filteredTags = tags.filter((tag) => {
+    const matchesSearch = tag.tagName
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesTemplate =
+      selectedTemplate === 'all' || tag.reportTemplateId === Number(selectedTemplate);
     return matchesSearch && matchesTemplate;
   });
 
-  const getTemplateName = (templateId: string | number) => {
-    const template = templates.find(t => t.id === Number(templateId));
+  const getTemplateName = (templateId: number) => {
+    const template = templates.find((t) => t.id === templateId);
     return template?.name || 'Bilinmiyor';
   };
 
-  const getDataTypeColor = (type: string) => {
-    switch (type) {
-      case 'number':
-        return 'bg-blue-100 text-blue-800';
-      case 'boolean':
-        return 'bg-green-100 text-green-800';
-      case 'string':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -73,8 +67,10 @@ export const TagList: React.FC = () => {
             className="pl-10 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">Tüm Şablonlar</option>
-            {templates.map(template => (
-              <option key={template.id} value={template.id}>{template.name}</option>
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
             ))}
           </select>
         </div>
@@ -95,48 +91,19 @@ export const TagList: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Node ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Veri Tipi
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Birim
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Durum
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredTags.map((tag) => (
                 <tr key={tag.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{tag.name}</div>
-                      {tag.description && (
-                        <div className="text-sm text-gray-500">{tag.description}</div>
-                      )}
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {tag.tagName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {getTemplateName(tag.templateId)}
+                    {getTemplateName(tag.reportTemplateId)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
-                    {tag.nodeId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${getDataTypeColor(tag.dataType)}`}>
-                      {tag.dataType}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {tag.unit || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                      tag.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {tag.isActive ? 'Aktif' : 'Pasif'}
-                    </span>
+                    {tag.tagNodeId}
                   </td>
                 </tr>
               ))}
@@ -151,4 +118,5 @@ export const TagList: React.FC = () => {
         </div>
       )}
     </div>
-  );};
+  );
+};
