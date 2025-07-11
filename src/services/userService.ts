@@ -17,9 +17,6 @@ export interface ChangePasswordDto {
 
 export const userService = {
   getById: (id: string) => api.get<UserDto>(`/api/users/${id}`),
-  list: (page: PageRequest) =>
-    api.get<PaginatedResponse<UserDto>>(
-      `/api/users?pageNumber=${page.index}&pageSize=${page.size}`
     ),
   create: (data: Omit<UserDto, 'id'> & { password: string }) =>
     api.post<UserDto>('/api/users', data),
