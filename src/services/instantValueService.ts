@@ -15,7 +15,7 @@ export const instantValueService = {
     api.get<InstantValueDto>(`/api/instantvalues/${timestamp}`),
   list: (page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<InstantValueDto>>(
-      `/api/instantvalues/list?pageNumber=${page.index}&pageSize=${page.size}`,
+      `/api/instantvalues/list?pageNumber=${page.index + 1}&pageSize=${page.size}`,
       query ?? {}
     ),
 };

@@ -12,7 +12,7 @@ export const userOperationClaimService = {
     api.get<UserOperationClaimDto>(`/api/useroperationclaims/${id}`),
   list: (page: PageRequest) =>
     api.get<PaginatedResponse<UserOperationClaimDto>>(
-      `/api/useroperationclaims?PageNumber=${page.index}&PageSize=${page.size}`
+      `/api/useroperationclaims?PageNumber=${page.index + 1}&PageSize=${page.size}`
     ),
   create: (data: Omit<UserOperationClaimDto, 'id'>) =>
     api.post<UserOperationClaimDto>('/api/useroperationclaims', data),

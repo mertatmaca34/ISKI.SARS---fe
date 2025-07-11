@@ -17,7 +17,7 @@ export const tagService = {
   delete: (id: number) => api.delete<unknown>(`/api/reporttemplatetags/${id}`),
   list: (page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ReportTemplateTagDto>>(
-      `/api/reporttemplatetags/list?pageNumber=${page.index}&pageSize=${page.size}`,
+      `/api/reporttemplatetags/list?pageNumber=${page.index + 1}&pageSize=${page.size}`,
       query ?? {}
     ),
 };

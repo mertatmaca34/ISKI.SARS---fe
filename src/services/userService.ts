@@ -20,7 +20,7 @@ export const userService = {
   list: (page?: PageRequest) =>
     api.get<PaginatedResponse<UserDto>>(
       page
-        ? `/api/users?pageNumber=${page.index}&pageSize=${page.size}`
+        ? `/api/users?pageNumber=${page.index + 1}&pageSize=${page.size}`
         : '/api/users'
     ),
   create: (data: Omit<UserDto, 'id'> & { password: string }) =>
