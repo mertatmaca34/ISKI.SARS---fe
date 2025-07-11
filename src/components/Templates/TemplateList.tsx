@@ -5,12 +5,13 @@ import {
   tagService,
   ReportTemplateDto,
 } from '../../services';
+import { TemplateCreateForm } from './TemplateCreateForm';
 
 export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
   const [tags, setTags] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [, setShowCreateForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const loadData = () => {
     templateService
@@ -60,6 +61,18 @@ export const TemplateList: React.FC = () => {
         .then((res) => setTemplates(res.items));
     }
   };
+
+  if (showCreateForm) {
+    return (
+      <TemplateCreateForm
+        onSuccess={() => {
+          setShowCreateForm(false);
+          loadData();
+        }}
+        onCancel={() => setShowCreateForm(false)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
