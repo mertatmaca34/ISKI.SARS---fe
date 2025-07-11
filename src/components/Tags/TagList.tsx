@@ -15,10 +15,10 @@ export const TagList: React.FC = () => {
 
   useEffect(() => {
     tagService
-      .list({ pageNumber: 0, pageSize: 100 })
+      .list({ index: 0, size: 100 })
       .then((res) => setTags(res.items));
     templateService
-      .list({ pageNumber: 0, pageSize: 50 })
+      .list({ index: 0, size: 50 })
       .then((res) => setTemplates(res.items));
   }, []);
 

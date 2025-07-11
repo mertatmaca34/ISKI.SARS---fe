@@ -8,7 +8,7 @@ export const UserList: React.FC = () => {
 
   const loadData = () => {
     userService
-      .list({ pageNumber: 0, pageSize: 50 })
+      .list({ index: 0, size: 50 })
       .then((res) =>
         setUsers(
           res.items.map((u) => ({
