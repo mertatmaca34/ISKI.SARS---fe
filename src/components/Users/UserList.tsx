@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, UserCheck, UserX, Edit2 } from 'lucide-react';
+import { Plus, Search, UserCheck, UserX, Edit2, RefreshCcw } from 'lucide-react';
 import { User } from '../../types';
 import { userService } from '../../services';
 
 export const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
 
-  useEffect(() => {
+  const loadData = () => {
     userService
       .list({ pageNumber: 0, pageSize: 50 })
       .then((res) =>
@@ -22,6 +22,10 @@ export const UserList: React.FC = () => {
         )
       )
       .catch(() => setUsers([]));
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,6 +45,10 @@ export const UserList: React.FC = () => {
     if (window.confirm('Bu kullanıcıyı reddetmek istediğinizden emin misiniz?')) {
       setUsers(users.filter(user => user.id !== id));
     }
+  };
+
+  const handleRefresh = () => {
+    loadData();
   };
 
   const getRoleColor = (role: string) => {
@@ -73,10 +81,19 @@ export const UserList: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Kullanıcı Yönetimi</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors">
-          <Plus className="h-5 w-5" />
-          <span>Yeni Kullanıcı</span>
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleRefresh}
+            className="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300 flex items-center space-x-1 transition-colors"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            <span>Yenile</span>
+          </button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors">
+            <Plus className="h-5 w-5" />
+            <span>Yeni Kullanıcı</span>
+          </button>
+        </div>
       </div>
 
       {/* Search */}
