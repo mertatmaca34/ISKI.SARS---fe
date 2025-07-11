@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { LoginForm } from './components/Auth/LoginForm';
-import { Header } from './components/Layout/Header';
-import { Sidebar } from './components/Layout/Sidebar';
+import { MainLayout } from './components/Layout/MainLayout';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { TemplateList } from './components/Templates/TemplateList';
 import { TagList } from './components/Tags/TagList';
@@ -11,6 +10,7 @@ import { Settings } from './components/Settings/Settings';
 import { InstantValueList } from './components/InstantValues/InstantValueList';
 import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
 import { UserOperationClaimList } from './components/UserOperationClaims/UserOperationClaimList';
+import { UserSettings } from './components/Users/UserSettings';
 import { authStore } from './store/authStore';
 
 function App() {
@@ -47,6 +47,8 @@ function App() {
         return <LogList />;
       case 'settings':
         return <Settings />;
+      case 'user-settings':
+        return <UserSettings />;
       default:
         return <Dashboard />;
     }
@@ -57,17 +59,14 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header onLogout={handleLogout} />
-      <div className="flex">
-        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            {renderContent()}
-          </div>
-        </main>
-      </div>
-    </div>
+    <MainLayout
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      onLogout={handleLogout}
+      onOpenUserSettings={() => setActiveTab('user-settings')}
+    >
+      {renderContent()}
+    </MainLayout>
   );
 }
 

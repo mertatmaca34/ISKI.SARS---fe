@@ -2,7 +2,7 @@ import { api } from './api';
 import { PageRequest, PaginatedResponse } from './templateService';
 
 export interface UserDto {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -10,19 +10,19 @@ export interface UserDto {
 }
 
 export interface ChangePasswordDto {
-  userId: number;
+  userId: string;
   oldPassword: string;
   newPassword: string;
 }
 
 export const userService = {
-  getById: (id: number) => api.get<UserDto>(`/api/users/${id}`),
+  getById: (id: string) => api.get<UserDto>(`/api/users/${id}`),
   list: (page: PageRequest) =>
     api.get<PaginatedResponse<UserDto>>(`/api/users?pageNumber=${page.pageNumber}&pageSize=${page.pageSize}`),
   create: (data: Omit<UserDto, 'id'> & { password: string }) =>
     api.post<UserDto>('/api/users', data),
   update: (data: UserDto) => api.put<UserDto>('/api/users', data),
-  delete: (id: number) => api.delete<unknown>(`/api/users/${id}`),
+  delete: (id: string) => api.delete<unknown>(`/api/users/${id}`),
   changePassword: (data: ChangePasswordDto) =>
     api.put<unknown>('/api/users/change-password', data),
 };
