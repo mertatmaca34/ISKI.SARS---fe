@@ -11,32 +11,6 @@ function parseJwt(token: string): Record<string, unknown> | null {
   }
 }
 
-function userFromToken(token: string, fallbackEmail = ''): User | null {
-  const payload = parseJwt(token);
-  if (!payload) return null;
-  const id =
-    (payload['nameid'] as string) ||
-    (payload['sub'] as string) ||
-    (payload['userId'] as string) ||
-    (payload['user_id'] as string) ||
-    (payload[
-      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
-    ] as string) ||
-    '';
-  const username =
-    (payload['unique_name'] as string) ||
-    (payload['name'] as string) ||
-    fallbackEmail;
-  const email = (payload['email'] as string) || fallbackEmail;
-  const role =
-    (payload['role'] as string) ||
-    (payload[
-      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
-    ] as string) ||
-    'operator';
-  return { id, username, email, role, createdAt: '', isActive: true };
-}
-
 interface StoredAuth {
   token: string;
   refreshToken: string;
@@ -53,7 +27,18 @@ class AuthStore {
     const stored = localStorage.getItem('auth');
     if (stored) {
       const parsed: StoredAuth = JSON.parse(stored);
-      this.user = parsed.user || (parsed.token ? userFromToken(parsed.token) : null);
+      this.user = parsed.user || (parsed.token ? ((): User | null => {
+        const payload = parseJwt(parsed.token);
+        if (!payload) return null;
+        return {
+          id: (payload.nameid as string) || (payload.sub as string) || '',
+          username: (payload.unique_name as string) || '',
+          email: (payload.email as string) || '',
+          role: (payload.role as string) || 'operator',
+          createdAt: '',
+          isActive: true,
+        };
+      })() : null);
       this.token = parsed.token;
       this.refreshToken = parsed.refreshToken;
       this.isAuthenticated = !!parsed.token;
@@ -75,34 +60,27 @@ class AuthStore {
   async login(email: string, password: string): Promise<User> {
     try {
       const token = await authService.login({ email, password });
-      const user = userFromToken(token.token, email);
-      this.user =
-        user || {
-          id: '',
-          username: email,
-          email,
-          role: 'operator',
-          createdAt: '',
-          isActive: true,
-        };
+      const payload = parseJwt(token.token);
+      this.user = {
+        id: (payload?.nameid as string) || (payload?.sub as string) || '',
+        username: (payload?.unique_name as string) || email,
+        email: (payload?.email as string) || email,
+        role: (payload?.role as string) || 'operator',
+        createdAt: '',
+        isActive: true,
+      };
       this.isAuthenticated = true;
       this.setSession(token);
       return this.user;
     } catch (err) {
+      // If backend is unreachable, allow mock admin login
       if (email === 'admin@gmail.com' && password === '123') {
         const mockToken: AccessToken = {
           token: 'mock-token',
           refreshToken: 'mock-refresh',
           expiration: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
         };
-        this.user = {
-          id: '1',
-          username: 'admin',
-          email,
-          role: 'admin',
-          createdAt: '',
-          isActive: true,
-        };
+        this.user = { id: '1', username: 'admin', email, role: 'admin', createdAt: '', isActive: true };
         this.isAuthenticated = true;
         this.setSession(mockToken);
         return this.user;
@@ -116,11 +94,7 @@ class AuthStore {
     this.refreshToken = token.refreshToken;
     localStorage.setItem(
       'auth',
-      JSON.stringify({
-        token: this.token,
-        refreshToken: this.refreshToken,
-        user: this.user,
-      })
+      JSON.stringify({ token: this.token, refreshToken: this.refreshToken, user: this.user })
     );
   }
 
@@ -132,5 +106,4 @@ class AuthStore {
     localStorage.removeItem('auth');
   }
 }
-
 export const authStore = new AuthStore();
