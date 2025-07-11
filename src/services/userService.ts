@@ -1,5 +1,5 @@
 import { api } from './api';
-import { PageRequest, PaginatedResponse, DynamicQuery } from './templateService';
+import { PageRequest, PaginatedResponse } from './templateService';
 
 export interface UserDto {
   id: string;
