@@ -13,7 +13,7 @@ export const UserSettings: React.FC = () => {
   useEffect(() => {
     if (!currentUser) return;
     userService
-      .getById(Number(currentUser.id))
+      .getById(currentUser.id)
       .then((u) => setUser(u))
       .catch(() => setUser(null));
   }, [currentUser]);
@@ -27,7 +27,7 @@ export const UserSettings: React.FC = () => {
     }
     try {
       await userService.changePassword({
-        userId: Number(currentUser.id),
+        userId: currentUser.id,
         oldPassword,
         newPassword,
       });

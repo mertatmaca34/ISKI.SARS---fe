@@ -1,6 +1,16 @@
 import { User } from '../types';
 import { authService, AccessToken } from '../services/authService';
 
+function parseJwt(token: string): Record<string, unknown> | null {
+  try {
+    const base64 = token.split('.')[1];
+    const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
 interface StoredAuth {
   token: string;
   refreshToken: string;
@@ -17,7 +27,18 @@ class AuthStore {
     const stored = localStorage.getItem('auth');
     if (stored) {
       const parsed: StoredAuth = JSON.parse(stored);
-      this.user = parsed.user;
+      this.user = parsed.user || (parsed.token ? ((): User | null => {
+        const payload = parseJwt(parsed.token);
+        if (!payload) return null;
+        return {
+          id: (payload.nameid as string) || (payload.sub as string) || '',
+          username: (payload.unique_name as string) || '',
+          email: (payload.email as string) || '',
+          role: (payload.role as string) || 'operator',
+          createdAt: '',
+          isActive: true,
+        };
+      })() : null);
       this.token = parsed.token;
       this.refreshToken = parsed.refreshToken;
       this.isAuthenticated = !!parsed.token;
@@ -39,8 +60,15 @@ class AuthStore {
   async login(email: string, password: string): Promise<User> {
     try {
       const token = await authService.login({ email, password });
-      // Ideally backend returns user info; here we call refresh token to get user if needed
-      this.user = { id: '0', username: email, email, role: 'operator', createdAt: '', isActive: true };
+      const payload = parseJwt(token.token);
+      this.user = {
+        id: (payload?.nameid as string) || (payload?.sub as string) || '',
+        username: (payload?.unique_name as string) || email,
+        email: (payload?.email as string) || email,
+        role: (payload?.role as string) || 'operator',
+        createdAt: '',
+        isActive: true,
+      };
       this.isAuthenticated = true;
       this.setSession(token);
       return this.user;
