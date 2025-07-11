@@ -4,9 +4,10 @@ import { authStore } from '../../store/authStore';
 
 interface HeaderProps {
   onLogout: () => void;
+  onOpenUserSettings: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ onLogout, onOpenUserSettings }) => {
   const currentUser = authStore.getCurrentUser();
 
   return (
@@ -26,13 +27,16 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+            <button
+              onClick={onOpenUserSettings}
+              className="flex items-center space-x-2 focus:outline-none hover:bg-gray-100 px-2 py-1 rounded-md"
+            >
               <User className="h-5 w-5 text-gray-400" />
-              <div className="text-sm">
+              <div className="text-sm text-left">
                 <div className="font-medium text-gray-900">{currentUser?.username}</div>
                 <div className="text-gray-500 capitalize">{currentUser?.role}</div>
               </div>
-            </div>
+            </button>
             <button
               onClick={onLogout}
               className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"

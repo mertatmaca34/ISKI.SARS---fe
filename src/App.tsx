@@ -11,6 +11,7 @@ import { Settings } from './components/Settings/Settings';
 import { InstantValueList } from './components/InstantValues/InstantValueList';
 import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
 import { UserOperationClaimList } from './components/UserOperationClaims/UserOperationClaimList';
+import { UserSettings } from './components/Users/UserSettings';
 import { authStore } from './store/authStore';
 
 function App() {
@@ -47,6 +48,8 @@ function App() {
         return <LogList />;
       case 'settings':
         return <Settings />;
+      case 'user-settings':
+        return <UserSettings />;
       default:
         return <Dashboard />;
     }
@@ -58,7 +61,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onLogout={handleLogout} />
+      <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
       <div className="flex">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
         <main className="flex-1 p-6">
