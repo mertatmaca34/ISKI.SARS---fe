@@ -12,8 +12,24 @@ export const UserSettings: React.FC = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [savingInfo, setSavingInfo] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  const infoChanged =
+    firstName !== (user?.firstName || '') ||
+    lastName !== (user?.lastName || '') ||
+    email !== (user?.email || '');
+  const passwordsMatch = newPassword === confirmPassword;
+  const canUpdateInfo = infoChanged && !savingInfo;
+  const canChangePassword =
+    !!oldPassword &&
+    !!newPassword &&
+    !!confirmPassword &&
+    passwordsMatch &&
+    !savingPassword;
 
   useEffect(() => {
     if (!currentUser) return;
@@ -32,27 +48,33 @@ export const UserSettings: React.FC = () => {
     e.preventDefault();
     if (!currentUser) return;
     if (newPassword !== confirmPassword) {
-      setMessage('Yeni şifreler uyuşmuyor');
+      setPasswordError('Yeni şifreler uyuşmuyor');
       return;
     }
+    setPasswordError('');
+    setSavingPassword(true);
     try {
       await userService.changePassword({
         userId: currentUser.id,
         oldPassword,
         newPassword,
       });
-      setMessage('Şifre değiştirildi');
+      setToastMessage('Şifre başarıyla güncellendi');
+      setShowToast(true);
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Hata oluştu');
+      setPasswordError(err instanceof Error ? err.message : 'Hata oluştu');
+    } finally {
+      setSavingPassword(false);
     }
   };
 
   const handleUpdateInfo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
+    setSavingInfo(true);
     try {
       await userService.update({
         id: currentUser.id,
@@ -61,9 +83,12 @@ export const UserSettings: React.FC = () => {
         lastName,
       });
       setUser({ id: currentUser.id, email, firstName, lastName });
+      setToastMessage('Bilgiler güncellendi');
       setShowToast(true);
     } catch (err) {
       // ignore error for now
+    } finally {
+      setSavingInfo(false);
     }
   };
 
@@ -71,7 +96,7 @@ export const UserSettings: React.FC = () => {
     <div className="space-y-6">
       <Toast
         open={showToast}
-        message="Bilgiler güncellendi"
+        message={toastMessage}
         type="success"
         onClose={() => setShowToast(false)}
       />
@@ -129,7 +154,8 @@ export const UserSettings: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            disabled={!canUpdateInfo}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
             Güncelle
           </button>
@@ -172,10 +198,13 @@ export const UserSettings: React.FC = () => {
               required
             />
           </div>
-          {message && <p className="text-sm text-red-600">{message}</p>}
+          {passwordError && (
+            <p className="text-sm text-red-600">{passwordError}</p>
+          )}
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            disabled={!canChangePassword}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
             Şifreyi Güncelle
           </button>
