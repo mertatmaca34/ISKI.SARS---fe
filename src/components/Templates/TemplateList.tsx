@@ -7,6 +7,7 @@ import {
 } from '../../services';
 import { templateController } from '../../controllers/templateController';
 import { ConfirmToast } from '../ConfirmToast';
+import { SimpleToast } from '../SimpleToast';
 import { TemplateCreateForm } from './TemplateCreateForm';
 
 export const TemplateList: React.FC = () => {
@@ -15,6 +16,8 @@ export const TemplateList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
   const loadData = () => {
     templateService
@@ -43,12 +46,20 @@ export const TemplateList: React.FC = () => {
   const handleToggleActive = async (id: number) => {
     const template = templates.find((t) => t.id === id);
     if (!template) return;
+    const newStatus = !template.isActive;
     try {
-      await templateService.update({ ...template, isActive: !template.isActive });
-    } finally {
-      templateService
-        .list({ index: 0, size: 50 })
-        .then((res) => setTemplates(res.items));
+      await templateService.updateStatus(id, newStatus);
+      setTemplates((current) =>
+        current.map((t) => (t.id === id ? { ...t, isActive: newStatus } : t))
+      );
+      setToastMessage(
+        newStatus
+          ? 'Şablon aktif hale getirildi.'
+          : 'Şablon pasif hale getirildi.'
+      );
+      setShowToast(true);
+    } catch {
+      // ignore error for now
     }
   };
 
@@ -196,6 +207,11 @@ export const TemplateList: React.FC = () => {
         message="Bu şablonu silmek istediğinize emin misiniz?"
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
+      />
+      <SimpleToast
+        message={toastMessage}
+        open={showToast}
+        onClose={() => setShowToast(false)}
       />
     </div>
   );

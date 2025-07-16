@@ -37,6 +37,8 @@ export const templateService = {
   delete: (id: number) => api.delete<unknown>(`/api/reporttemplates/${id}`),
   deleteReportTemplateAsync: (id: number) =>
     api.delete<unknown>(`/api/ReportTemplates/${id}`),
+  updateStatus: (id: number, status: boolean) =>
+    api.put<unknown>(`/api/ReportTemplates/${id}/status`, status),
   list: (_page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ReportTemplateDto>>(
       '/api/ReportTemplates/list',
