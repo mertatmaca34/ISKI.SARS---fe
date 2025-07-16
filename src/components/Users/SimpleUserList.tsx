@@ -19,6 +19,7 @@ export const SimpleUserList: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
       await userController.delete(id);
+      setUsers(current => current.filter(u => u.id !== id));
       loadUsers();
     }
   };
