@@ -111,6 +111,9 @@ class AuthStore {
       'auth',
       JSON.stringify({ token: this.token, refreshToken: this.refreshToken, user: this.user })
     );
+    if (this.token) {
+      sessionStorage.setItem('Token', this.token);
+    }
   }
 
   logout() {
@@ -119,6 +122,7 @@ class AuthStore {
     this.token = null;
     this.refreshToken = null;
     localStorage.removeItem('auth');
+    sessionStorage.removeItem('Token');
   }
 }
 export const authStore = new AuthStore();
