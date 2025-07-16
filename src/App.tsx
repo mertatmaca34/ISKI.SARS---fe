@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LoginForm } from './components/Auth/LoginForm';
 import { Header } from './components/Layout/Header';
 import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { TemplateList } from './components/Templates/TemplateList';
+import { TemplateEditForm } from './components/Templates/TemplateEditForm';
 import { TagList } from './components/Tags/TagList';
 import { SimpleUserList } from './components/Users/SimpleUserList';
 import { LogList } from './components/Logs/LogList';
@@ -17,6 +18,18 @@ import { authStore } from './store/authStore';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(authStore.getIsAuthenticated());
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [route, setRoute] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handler = () => setRoute(window.location.pathname);
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, []);
+
+  const navigate = (path: string) => {
+    window.history.pushState({}, '', path);
+    setRoute(path);
+  };
 
   const handleLogin = () => {
     setIsAuthenticated(true);
@@ -57,6 +70,23 @@ function App() {
 
   if (!isAuthenticated) {
     return <LoginForm onLogin={handleLogin} />;
+  }
+
+  if (route.startsWith('/Templates/Edit/')) {
+    const id = parseInt(route.split('/').pop() || '0', 10);
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
+        <div className="flex">
+          <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
+          <main className="flex-1 p-6">
+            <div className="max-w-7xl mx-auto">
+              <TemplateEditForm id={id} onSuccess={() => navigate('/Templates')} onCancel={() => navigate('/Templates')} />
+            </div>
+          </main>
+        </div>
+      </div>
+    );
   }
 
   return (
