@@ -34,8 +34,13 @@ export const templateService = {
     api.post<ReportTemplateDto>('/api/reporttemplates', data),
   update: (data: ReportTemplateDto) =>
     api.put<ReportTemplateDto>('/api/reporttemplates', data),
+  /**
+   * Updates an existing report template.
+   * Uses the same endpoint as the generic update call but
+   * is exposed separately to match controller naming.
+   */
   UpdateReportTemplateAsync: (data: ReportTemplateDto) =>
-    api.put<ReportTemplateDto>('/api/ReportTemplates', data),
+    api.put<ReportTemplateDto>('/api/reporttemplates', data),
   delete: (id: number) => api.delete<unknown>(`/api/reporttemplates/${id}`),
   list: (_page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ReportTemplateDto>>(
