@@ -10,7 +10,7 @@ import {
 
 export const UserOperationClaimList: React.FC = () => {
   const [claims, setClaims] = useState<UserOperationClaimDto[]>([]);
-  const [users, setUsers] = useState<Record<number, UserDto>>({});
+  const [users, setUsers] = useState<Record<string, UserDto>>({});
   const [ops, setOps] = useState<Record<number, OperationClaimDto>>({});
 
   useEffect(() => {
@@ -22,9 +22,9 @@ export const UserOperationClaimList: React.FC = () => {
           operationClaimService.list({ index: 0, size: 100 }),
         ]);
         setClaims(claimRes.items);
-        const uMap: Record<number, UserDto> = {};
+        const uMap: Record<string, UserDto> = {};
         userRes.items.forEach((u) => {
-          uMap[Number(u.id)] = u;
+          uMap[u.id] = u;
         });
         setUsers(uMap);
         const oMap: Record<number, OperationClaimDto> = {};

@@ -85,7 +85,7 @@ export const UserSettings: React.FC = () => {
       setUser({ id: currentUser.id, email, firstName, lastName });
       setToastMessage('Bilgiler güncellendi');
       setShowToast(true);
-    } catch (err) {
+    } catch {
       // ignore error for now
     } finally {
       setSavingInfo(false);
