@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { userService, UserDto } from '../../services';
+import { UserDto } from '../../services';
+import { userController } from '../../controllers/userController';
 
 export const SimpleUserList: React.FC = () => {
   const [users, setUsers] = useState<UserDto[]>([]);
 
-  useEffect(() => {
-    userService
+  const loadUsers = () => {
+    userController
       .list({ index: 0, size: 50 })
       .then(res => setUsers(res.items))
       .catch(() => setUsers([]));
+  };
+
+  useEffect(() => {
+    loadUsers();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    await userController.delete(id);
+    loadUsers();
+  };
 
   return (
     <div className="space-y-6">
@@ -22,6 +32,7 @@ export const SimpleUserList: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ad Soyad</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
+                <th className="px-6 py-3" />
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -32,9 +43,17 @@ export const SimpleUserList: React.FC = () => {
                     {user.firstName} {user.lastName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${user.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}> 
+                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${user.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {user.status ? 'Aktif' : 'Pasif'}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
+                    >
+                      Sil
+                    </button>
                   </td>
                 </tr>
               ))}
