@@ -14,6 +14,13 @@ export const templateController = {
   },
 
   async EditPost(model: ReportTemplateViewModel): Promise<void> {
-    await templateService.UpdateReportTemplateAsync(model);
+    const payload: ReportTemplateViewModel = {
+      id: model.id,
+      name: model.name,
+      opcEndpoint: model.opcEndpoint,
+      pullInterval: model.pullInterval,
+      isActive: model.isActive,
+    };
+    await templateService.UpdateReportTemplateAsync(payload);
   },
 };
