@@ -3,7 +3,7 @@ import { PageRequest, PaginatedResponse } from './templateService';
 
 export interface UserOperationClaimDto {
   id: number;
-  userId: number;
+  userId: string;
   operationClaimId: number;
 }
 
@@ -20,3 +20,4 @@ export const userOperationClaimService = {
     api.put<UserOperationClaimDto>('/api/useroperationclaims', data),
   delete: (id: number) => api.delete<unknown>(`/api/useroperationclaims/${id}`),
 };
+

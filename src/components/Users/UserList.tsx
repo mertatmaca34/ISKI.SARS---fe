@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Search, UserCheck, UserX, Edit2, RefreshCcw } from 'lucide-react';
 import { User } from '../../types';
 import { userService } from '../../services';
+import { UserCreateForm } from './UserCreateForm';
 
 export const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const loadData = () => {
     userService
@@ -15,7 +17,7 @@ export const UserList: React.FC = () => {
             id: u.id.toString(),
             username: `${u.firstName} ${u.lastName}`,
             email: u.email,
-            role: 'operator',
+            role: (u.operationClaimName?.toLowerCase() as User['role']) || 'operator',
             createdAt: new Date().toISOString(),
             isActive: u.status ?? true,
           }))
@@ -77,6 +79,18 @@ export const UserList: React.FC = () => {
     }
   };
 
+  if (showCreateForm) {
+    return (
+      <UserCreateForm
+        onSuccess={() => {
+          setShowCreateForm(false);
+          loadData();
+        }}
+        onCancel={() => setShowCreateForm(false)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -89,7 +103,10 @@ export const UserList: React.FC = () => {
             <RefreshCcw className="h-4 w-4" />
             <span>Yenile</span>
           </button>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors">
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+          >
             <Plus className="h-5 w-5" />
             <span>Yeni Kullanıcı</span>
           </button>

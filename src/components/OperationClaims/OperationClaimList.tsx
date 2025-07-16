@@ -21,9 +21,9 @@ export const OperationClaimList: React.FC = () => {
           userService.list({ index: 0, size: 100 }),
         ]);
         setClaims(claimRes.items);
-        const userMap: Record<number, UserDto> = {};
+        const userMap: Record<string, UserDto> = {};
         userRes.items.forEach((u) => {
-          userMap[Number(u.id)] = u;
+          userMap[u.id] = u;
         });
         const grouped: Record<number, UserDto[]> = {};
         userClaimRes.items.forEach((uc) => {

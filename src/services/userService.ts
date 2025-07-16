@@ -7,6 +7,8 @@ export interface UserDto {
   firstName: string;
   lastName: string;
   status?: boolean;
+  operationClaimId?: number;
+  operationClaimName?: string;
 }
 
 export interface ChangePasswordDto {
@@ -23,8 +25,9 @@ export const userService = {
         ? `/api/users?pageNumber=${page.index + 1}&pageSize=${page.size}`
         : '/api/users'
     ),
-  create: (data: Omit<UserDto, 'id'> & { password: string }) =>
-    api.post<UserDto>('/api/users', data),
+  create: (
+    data: Omit<UserDto, 'id' | 'operationClaimName'> & { password: string }
+  ) => api.post<UserDto>('/api/users', data),
   update: (data: UserDto) => api.put<UserDto>('/api/users', data),
   delete: (id: string) => api.delete<unknown>(`/api/users/${id}`),
   changePassword: (data: ChangePasswordDto) =>
