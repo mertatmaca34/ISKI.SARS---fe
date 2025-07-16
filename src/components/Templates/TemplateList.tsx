@@ -67,6 +67,11 @@ export const TemplateList: React.FC = () => {
     setDeleteId(null);
   };
 
+  const handleEdit = (id: number) => {
+    window.history.pushState({}, '', `/Templates/Edit/${id}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
   if (showCreateForm) {
     return (
       <TemplateCreateForm
@@ -136,7 +141,10 @@ export const TemplateList: React.FC = () => {
                 >
                   <Power className="h-4 w-4" />
                 </button>
-                <button className="p-2 rounded-md text-gray-600 hover:bg-gray-50">
+                <button
+                  onClick={() => handleEdit(template.id)}
+                  className="p-2 rounded-md text-gray-600 hover:bg-gray-50"
+                >
                   <Edit2 className="h-4 w-4" />
                 </button>
                 <button 
