@@ -6,7 +6,7 @@ import {
   ReportTemplateDto,
 } from '../../services';
 import { templateController } from '../../controllers/templateController';
-import { ConfirmDialog } from '../ConfirmDialog';
+import { ConfirmToast } from '../ConfirmToast';
 import { TemplateCreateForm } from './TemplateCreateForm';
 
 export const TemplateList: React.FC = () => {
@@ -183,7 +183,7 @@ export const TemplateList: React.FC = () => {
           <p className="text-gray-500">Hiç şablon bulunamadı.</p>
         </div>
       )}
-      <ConfirmDialog
+      <ConfirmToast
         open={deleteId !== null}
         message="Bu şablonu silmek istediğinize emin misiniz?"
         onConfirm={confirmDelete}
