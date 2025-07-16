@@ -18,7 +18,7 @@ export const ConfirmToast: React.FC<ConfirmToastProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed top-4 inset-x-0 flex justify-center z-50">
       <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4 flex items-center space-x-4">
         {title && <h2 className="text-lg font-semibold mr-2">{title}</h2>}
         <p className="text-sm flex-1">{message}</p>
