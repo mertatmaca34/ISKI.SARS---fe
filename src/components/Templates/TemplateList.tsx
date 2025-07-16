@@ -6,12 +6,14 @@ import {
   ReportTemplateDto,
 } from '../../services';
 import { TemplateCreateForm } from './TemplateCreateForm';
+import { TemplateEditForm } from './TemplateEditForm';
 
 export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
   const [tags, setTags] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const loadData = () => {
     templateService
@@ -74,6 +76,19 @@ export const TemplateList: React.FC = () => {
     );
   }
 
+  if (editingId !== null) {
+    return (
+      <TemplateEditForm
+        templateId={editingId}
+        onSuccess={() => {
+          setEditingId(null);
+          loadData();
+        }}
+        onCancel={() => setEditingId(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -131,7 +146,10 @@ export const TemplateList: React.FC = () => {
                 >
                   <Power className="h-4 w-4" />
                 </button>
-                <button className="p-2 rounded-md text-gray-600 hover:bg-gray-50">
+                <button
+                  onClick={() => setEditingId(template.id)}
+                  className="p-2 rounded-md text-gray-600 hover:bg-gray-50"
+                >
                   <Edit2 className="h-4 w-4" />
                 </button>
                 <button 
