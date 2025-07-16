@@ -179,7 +179,7 @@ export const UserList: React.FC = () => {
                           </button>
                         </>
                       )}
-                      <button className="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50">
+                      <button className="p-2 rounded-md text-gray-600 hover:bg-gray-50">
                         <Edit2 className="h-4 w-4" />
                       </button>
                     </div>

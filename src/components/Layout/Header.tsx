@@ -12,7 +12,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout, onOpenUserSettings }) 
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <div className="flex items-center">
@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout, onOpenUserSettings }) 
               </div>
               <div className="ml-3">
                 <h1 className="text-xl font-semibold text-gray-900">İSKİ SARS</h1>
-                <p className="text-sm text-gray-500">Sistem Aktif Rapor Sistemi</p>
+                <p className="text-sm text-gray-500">SCADA Arşivleme ve Raporlama Sistemi</p>
               </div>
             </div>
           </div>

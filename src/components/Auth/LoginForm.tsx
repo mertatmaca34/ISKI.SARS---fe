@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, AlertCircle, Loader2 } from 'lucide-react';
+import { Archive, AlertCircle, Loader2 } from 'lucide-react';
 import { authStore } from '../../store/authStore';
 
 interface LoginFormProps {
@@ -33,11 +33,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         <div className="text-center">
           <div className="flex justify-center">
             <div className="bg-blue-600 rounded-lg p-3">
-              <Settings className="h-8 w-8 text-white" />
+              <Archive className="h-8 w-8 text-white" />
             </div>
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">İSKİ SARS</h2>
-          <p className="mt-2 text-sm text-gray-600">Sistem Aktif Rapor Sistemi</p>
+          <p className="mt-2 text-sm text-gray-600">SCADA Arşivleme ve Raporlama Sistemi</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
