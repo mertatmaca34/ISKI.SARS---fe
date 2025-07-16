@@ -3,7 +3,7 @@ const API_URL = (import.meta.env.VITE_API_URL || 'https://10.0.254.199:444/')
   .replace(/\/+$/, '');
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const token = authStore.getAccessToken();
+  const token = authStore.getAccessToken() || sessionStorage.getItem('Token');
   const response = await fetch(API_URL + url, {
     headers: {
       'Content-Type': 'application/json',

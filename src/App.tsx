@@ -5,7 +5,7 @@ import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { TemplateList } from './components/Templates/TemplateList';
 import { TagList } from './components/Tags/TagList';
-import { UserList } from './components/Users/UserList';
+import { SimpleUserList } from './components/Users/SimpleUserList';
 import { LogList } from './components/Logs/LogList';
 import { Settings } from './components/Settings/Settings';
 import { InstantValueList } from './components/InstantValues/InstantValueList';
@@ -43,7 +43,7 @@ function App() {
       case 'useroperationclaims':
         return <UserOperationClaimList />;
       case 'users':
-        return <UserList />;
+        return <SimpleUserList />;
       case 'logs':
         return <LogList />;
       case 'settings':
