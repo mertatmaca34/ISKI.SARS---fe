@@ -17,8 +17,11 @@ export const SimpleUserList: React.FC = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    await userController.delete(id);
-    loadUsers();
+    if (window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
+      await userController.delete(id);
+      setUsers(current => current.filter(u => u.id !== id));
+      loadUsers();
+    }
   };
 
   return (
@@ -38,6 +41,7 @@ export const SimpleUserList: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {users.map(user => (
                 <tr key={user.id} className="hover:bg-gray-50">
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {user.firstName} {user.lastName}
                   </td>
