@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { userService, UserDto } from '../../services';
 import { authStore } from '../../store/authStore';
+import { SimpleToast } from '../SimpleToast';
 
 export const UserSettings: React.FC = () => {
   const currentUser = authStore.getCurrentUser();
@@ -9,6 +10,8 @@ export const UserSettings: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -18,6 +21,16 @@ export const UserSettings: React.FC = () => {
       .catch(() => setUser(null));
   }, [currentUser]);
 
+  useEffect(() => {
+    setMessage('');
+  }, [oldPassword, newPassword, confirmPassword]);
+
+  const isPasswordValid =
+    oldPassword !== '' &&
+    newPassword !== '' &&
+    confirmPassword !== '' &&
+    newPassword === confirmPassword;
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
@@ -25,18 +38,22 @@ export const UserSettings: React.FC = () => {
       setMessage('Yeni şifreler uyuşmuyor');
       return;
     }
+    setIsLoading(true);
     try {
       await userService.changePassword({
         userId: currentUser.id,
         oldPassword,
         newPassword,
       });
-      setMessage('Şifre değiştirildi');
+      setShowToast(true);
+      setMessage('');
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Hata oluştu');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,12 +120,18 @@ export const UserSettings: React.FC = () => {
           {message && <p className="text-sm text-red-600">{message}</p>}
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            disabled={!isPasswordValid || isLoading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Şifreyi Güncelle
+            {isLoading ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
           </button>
         </form>
       </div>
+      <SimpleToast
+        message="Şifre başarıyla güncellendi"
+        open={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   );
 };
