@@ -1,64 +1,105 @@
 import React, { useEffect, useState } from 'react';
 import { userService, UserDto } from '../../services';
 import { authStore } from '../../store/authStore';
-import { SimpleToast } from '../SimpleToast';
+import { Toast } from '../Toast';
 
 export const UserSettings: React.FC = () => {
   const currentUser = authStore.getCurrentUser();
   const [user, setUser] = useState<UserDto | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [savingInfo, setSavingInfo] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  const infoChanged =
+    firstName !== (user?.firstName || '') ||
+    lastName !== (user?.lastName || '') ||
+    email !== (user?.email || '');
+  const passwordsMatch = newPassword === confirmPassword;
+  const canUpdateInfo = infoChanged && !savingInfo;
+  const canChangePassword =
+    !!oldPassword &&
+    !!newPassword &&
+    !!confirmPassword &&
+    passwordsMatch &&
+    !savingPassword;
 
   useEffect(() => {
     if (!currentUser) return;
     userService
       .getById(currentUser.id)
-      .then((u) => setUser(u))
+      .then((u) => {
+        setUser(u);
+        setFirstName(u.firstName);
+        setLastName(u.lastName);
+        setEmail(u.email);
+      })
       .catch(() => setUser(null));
   }, [currentUser]);
-
-  useEffect(() => {
-    setMessage('');
-  }, [oldPassword, newPassword, confirmPassword]);
-
-  const isPasswordValid =
-    oldPassword !== '' &&
-    newPassword !== '' &&
-    confirmPassword !== '' &&
-    newPassword === confirmPassword;
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
     if (newPassword !== confirmPassword) {
-      setMessage('Yeni şifreler uyuşmuyor');
+      setPasswordError('Yeni şifreler uyuşmuyor');
       return;
     }
-    setIsLoading(true);
+    setPasswordError('');
+    setSavingPassword(true);
     try {
       await userService.changePassword({
         userId: currentUser.id,
         oldPassword,
         newPassword,
       });
+      setToastMessage('Şifre başarıyla güncellendi');
       setShowToast(true);
-      setMessage('');
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Hata oluştu');
+      setPasswordError(err instanceof Error ? err.message : 'Hata oluştu');
     } finally {
-      setIsLoading(false);
+      setSavingPassword(false);
+    }
+  };
+
+  const handleUpdateInfo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    setSavingInfo(true);
+    try {
+      await userService.update({
+        id: currentUser.id,
+        email,
+        firstName,
+        lastName,
+      });
+      setUser({ id: currentUser.id, email, firstName, lastName });
+      setToastMessage('Bilgiler güncellendi');
+      setShowToast(true);
+    } catch (err) {
+      // ignore error for now
+    } finally {
+      setSavingInfo(false);
     }
   };
 
   return (
     <div className="space-y-6">
+      <Toast
+        open={showToast}
+        message={toastMessage}
+        type="success"
+        onClose={() => setShowToast(false)}
+      />
       <h1 className="text-2xl font-semibold text-gray-900">Kullanıcı Ayarları</h1>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-2">
@@ -79,7 +120,47 @@ export const UserSettings: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+        <form className="space-y-4" onSubmit={handleUpdateInfo}>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ad</label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Soyad</label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!canUpdateInfo}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            Güncelle
+          </button>
+        </form>
+
         <form className="space-y-4" onSubmit={handleChangePassword}>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -117,21 +198,18 @@ export const UserSettings: React.FC = () => {
               required
             />
           </div>
-          {message && <p className="text-sm text-red-600">{message}</p>}
+          {passwordError && (
+            <p className="text-sm text-red-600">{passwordError}</p>
+          )}
           <button
             type="submit"
-            disabled={!isPasswordValid || isLoading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!canChangePassword}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            {isLoading ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
+            Şifreyi Güncelle
           </button>
         </form>
       </div>
-      <SimpleToast
-        message="Şifre başarıyla güncellendi"
-        open={showToast}
-        onClose={() => setShowToast(false)}
-      />
     </div>
   );
 };
