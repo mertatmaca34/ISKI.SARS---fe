@@ -7,7 +7,6 @@ import {
   Settings,
   Activity,
   Shield,
-  Database,
   Key,
   UserCog
 } from 'lucide-react';
@@ -25,7 +24,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, roles: ['admin', 'operator'] },
     { id: 'templates', label: 'Rapor Şablonları', icon: FileText, roles: ['admin', 'operator'] },
     { id: 'tags', label: 'Etiketler', icon: Tags, roles: ['admin', 'operator'] },
-    { id: 'instantvalues', label: 'Anlık Değerler', icon: Database, roles: ['admin', 'operator'] },
     { id: 'operationclaims', label: 'Yetkiler', icon: Key, roles: ['admin'] },
     { id: 'useroperationclaims', label: 'Kullanıcı Yetkileri', icon: UserCog, roles: ['admin'] },
     { id: 'users', label: 'Kullanıcı Yönetimi', icon: Users, roles: ['admin'] },

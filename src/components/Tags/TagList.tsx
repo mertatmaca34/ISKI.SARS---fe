@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import {
   tagService,
   templateService,
@@ -41,10 +41,6 @@ export const TagList: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Etiketler</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors">
-          <Plus className="h-5 w-5" />
-          <span>Yeni Etiket</span>
-        </button>
       </div>
 
       {/* Filters */}

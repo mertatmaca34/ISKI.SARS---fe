@@ -13,64 +13,38 @@ class DataStore {
 
   private initializeMockData() {
     // Mock templates
-    this.templates = [
-      {
-        id: '1',
-        name: 'Ana Pompa İstasyonu',
-        description: 'Ana pompa istasyonu veri toplama şablonu',
-        opcEndpoint: 'opc.tcp://192.168.1.100:4840',
-        collectionInterval: 5,
-        createdBy: 'admin',
-        createdAt: '2024-01-01T10:00:00Z',
-        isActive: true,
-        tags: []
-      },
-      {
-        id: '2',
-        name: 'Arıtma Tesisi',
-        description: 'Arıtma tesisi sensör verileri',
-        opcEndpoint: 'opc.tcp://192.168.1.101:4840',
-        collectionInterval: 10,
-        createdBy: 'admin',
-        createdAt: '2024-01-02T14:30:00Z',
-        isActive: true,
-        tags: []
-      }
-    ];
+    this.templates = Array.from({ length: 10 }).map((_, i) => ({
+      id: String(i + 1),
+      name: `Şablon ${i + 1}`,
+      description: `Şablon ${i + 1} açıklaması`,
+      opcEndpoint: `opc.tcp://192.168.1.${100 + i}:4840`,
+      collectionInterval: 5 + i,
+      createdBy: 'admin',
+      createdAt: `2024-01-${String(i + 1).padStart(2, '0')}T12:00:00Z`,
+      isActive: i % 2 === 0,
+      tags: []
+    }));
 
-    // Mock tags
-    this.tags = [
-      {
-        id: '1',
-        templateId: '1',
-        name: 'Pompa_1_Akım',
-        nodeId: 'ns=2;s=Pump1.Current',
-        dataType: 'number',
-        description: 'Pompa 1 akım değeri',
-        unit: 'A',
-        isActive: true
-      },
-      {
-        id: '2',
-        templateId: '1',
-        name: 'Pompa_1_Basınç',
-        nodeId: 'ns=2;s=Pump1.Pressure',
-        dataType: 'number',
-        description: 'Pompa 1 basınç değeri',
-        unit: 'bar',
-        isActive: true
-      },
-      {
-        id: '3',
-        templateId: '2',
-        name: 'pH_Değeri',
-        nodeId: 'ns=2;s=Treatment.pH',
-        dataType: 'number',
-        description: 'Arıtma tesisi pH değeri',
-        unit: 'pH',
-        isActive: true
-      }
-    ];
+    // Mock tags (one for each template)
+    this.tags = Array.from({ length: 10 }).map((_, i) => ({
+      id: String(i + 1),
+      templateId: String((i % 10) + 1),
+      name: `Tag_${i + 1}`,
+      nodeId: `ns=2;s=Template${(i % 10) + 1}.Tag${i + 1}`,
+      dataType: 'number',
+      description: `Tag ${i + 1} açıklaması`,
+      unit: 'unit',
+      isActive: true
+    }));
+
+    // Mock instant values
+    this.instantValues = Array.from({ length: 10 }).map((_, i) => ({
+      id: String(i + 1),
+      tagId: String((i % 10) + 1),
+      value: Math.random() * 100,
+      quality: 'good',
+      timestamp: new Date(Date.now() - i * 60000).toISOString()
+    }));
 
     // Mock system metrics
     this.systemMetrics = [
