@@ -83,6 +83,11 @@ export const TemplateList: React.FC = () => {
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
+  const handleManageTags = (id: number) => {
+    window.history.pushState({}, '', `/Templates/${id}/Tags`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
   if (showCreateForm) {
     return (
       <TemplateCreateForm
@@ -183,12 +188,21 @@ export const TemplateList: React.FC = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Durum:</span>
                 <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                  template.isActive 
-                    ? 'bg-green-100 text-green-800' 
+                  template.isActive
+                    ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'
                 }`}>
                   {template.isActive ? 'Aktif' : 'Pasif'}
                 </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Taglar:</span>
+                <button
+                  onClick={() => handleManageTags(template.id)}
+                  className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
+                >
+                  Yönet
+                </button>
               </div>
             </div>
 

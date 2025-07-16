@@ -9,7 +9,7 @@ import { TagList } from './components/Tags/TagList';
 import { SimpleUserList } from './components/Users/SimpleUserList';
 import { LogList } from './components/Logs/LogList';
 import { Settings } from './components/Settings/Settings';
-import { InstantValueList } from './components/InstantValues/InstantValueList';
+import { TemplateTagManager } from './components/Templates/TemplateTagManager';
 import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
 import { UserOperationClaimList } from './components/UserOperationClaims/UserOperationClaimList';
 import { UserSettings } from './components/Users/UserSettings';
@@ -49,8 +49,6 @@ function App() {
         return <TemplateList />;
       case 'tags':
         return <TagList />;
-      case 'instantvalues':
-        return <InstantValueList />;
       case 'operationclaims':
         return <OperationClaimList />;
       case 'useroperationclaims':
@@ -82,6 +80,23 @@ function App() {
           <main className="flex-1 p-6">
             <div className="max-w-7xl mx-auto">
               <TemplateEditForm id={id} onSuccess={() => navigate('/Templates')} onCancel={() => navigate('/Templates')} />
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (route.startsWith('/Templates/') && route.endsWith('/Tags')) {
+    const id = parseInt(route.split('/')[2] || '0', 10);
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
+        <div className="flex">
+          <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
+          <main className="flex-1 p-6">
+            <div className="max-w-7xl mx-auto">
+              <TemplateTagManager templateId={id} onBack={() => navigate('/Templates')} />
             </div>
           </main>
         </div>
