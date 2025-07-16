@@ -5,6 +5,8 @@ import {
   tagService,
   ReportTemplateDto,
 } from '../../services';
+import { templateController } from '../../controllers/templateController';
+import { ConfirmToast } from '../ConfirmToast';
 import { TemplateCreateForm } from './TemplateCreateForm';
 
 export const TemplateList: React.FC = () => {
@@ -12,6 +14,7 @@ export const TemplateList: React.FC = () => {
   const [tags, setTags] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const loadData = () => {
     templateService
@@ -53,13 +56,15 @@ export const TemplateList: React.FC = () => {
     loadData();
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Bu şablonu silmek istediğinizden emin misiniz?')) {
-      await templateService.delete(Number(id));
-      templateService
-        .list({ index: 0, size: 50 })
-        .then((res) => setTemplates(res.items));
-    }
+  const handleDelete = (id: number) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId === null) return;
+    await templateController.delete(deleteId);
+    setTemplates((current) => current.filter((t) => t.id !== deleteId));
+    setDeleteId(null);
   };
 
   if (showCreateForm) {
@@ -178,6 +183,12 @@ export const TemplateList: React.FC = () => {
           <p className="text-gray-500">Hiç şablon bulunamadı.</p>
         </div>
       )}
+      <ConfirmToast
+        open={deleteId !== null}
+        message="Bu şablonu silmek istediğinize emin misiniz?"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 };
