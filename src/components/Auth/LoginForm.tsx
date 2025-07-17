@@ -98,7 +98,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onShowRegister })
             </button>
           </div>
         </form>
-
+        <div className="text-center">
+          <div className="text-sm text-gray-600 bg-white p-4 rounded-lg shadow-sm">
+            <p className="font-medium mb-2">Demo Hesapları:</p>
+            <p>Admin: admin / admin123</p>
+            <p>Operatör: operator / op123</p>
+          </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={onShowRegister}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Kayıt Ol
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
