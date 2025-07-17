@@ -73,35 +73,19 @@ class AuthStore {
   }
 
   async login(email: string, password: string): Promise<User> {
-    try {
-      const token = await authService.login({ email, password });
-      this.user =
-        payloadToUser(parseJwt(token.token), email) || {
-          id: '',
-          username: email,
-          email,
-          role: 'operator',
-          createdAt: '',
-          isActive: true,
-        };
-      this.isAuthenticated = true;
-      this.setSession(token);
-      return this.user;
-    } catch (err) {
-      // If backend is unreachable, allow mock admin login
-      if (email === 'admin@gmail.com' && password === '123') {
-        const mockToken: AccessToken = {
-          token: 'mock-token',
-          refreshToken: 'mock-refresh',
-          expiration: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        };
-        this.user = { id: '1', username: 'admin', email, role: 'admin', createdAt: '', isActive: true };
-        this.isAuthenticated = true;
-        this.setSession(mockToken);
-        return this.user;
-      }
-      throw err;
-    }
+    const token = await authService.login({ email, password });
+    this.user =
+      payloadToUser(parseJwt(token.token), email) || {
+        id: '',
+        username: email,
+        email,
+        role: 'operator',
+        createdAt: '',
+        isActive: true,
+      };
+    this.isAuthenticated = true;
+    this.setSession(token);
+    return this.user;
   }
 
   private setSession(token: AccessToken) {
