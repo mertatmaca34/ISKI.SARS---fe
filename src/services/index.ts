@@ -7,3 +7,4 @@ export * from './dashboardService';
 export * from './operationClaimService';
 export * from './userOperationClaimService';
 export * from './instantValueService';
+export * from './opcService';
