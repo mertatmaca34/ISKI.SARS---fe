@@ -38,10 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   return (
     <div className="w-64 bg-gray-800 min-h-screen">
       <div className="p-4">
-        <div className="flex items-center space-x-2 mb-8">
-          <Activity className="h-6 w-6 text-blue-400" />
-          <span className="text-white font-semibold">Sistem Durumu</span>
-        </div>
+        <div className="mb-8" />
         
         <nav className="space-y-2">
           {filteredItems.map((item) => {
