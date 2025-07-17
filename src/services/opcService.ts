@@ -29,16 +29,18 @@ export interface TreeNode {
 
 export const opcService = {
   connect: (endpoint: string) =>
-    api.post<ApiResponse<string>>('/Opc/Connect', endpoint),
+    api.post<ApiResponse<string>>('/api/Opc/Connect', { endpoint }),
   read: (nodeId: string) =>
-    api.get<ApiResponse<OpcReadResult>>(`/Opc/read?nodeId=${encodeURIComponent(nodeId)}`),
+    api.get<ApiResponse<OpcReadResult>>(`/api/Opc/read?nodeId=${encodeURIComponent(nodeId)}`),
   write: (nodeId: string, value: string) =>
-    api.post<ApiResponse<string>>('/Opc/Write', { nodeId, value }),
+    api.post<ApiResponse<string>>('/api/Opc/Write', { nodeId, value }),
   browse: (nodeId: string) =>
-    api.get<ApiResponse<BrowseItem[]>>(`/Opc/Browse?nodeId=${encodeURIComponent(nodeId)}`),
+    api.get<ApiResponse<BrowseItem[]>>(`/api/Opc/Browse?nodeId=${encodeURIComponent(nodeId)}`),
   tree: (nodeId: string) =>
-    api.get<ApiResponse<TreeNode>>(`/Opc/tree?nodeId=${encodeURIComponent(nodeId)}`),
+    api.get<ApiResponse<TreeNode>>(`/api/Opc/tree?nodeId=${encodeURIComponent(nodeId)}`),
   discover: (networkPrefix: string, port: number) =>
-    api.get<ApiResponse<string[]>>(`/Discover?networkPrefix=${encodeURIComponent(networkPrefix)}&port=${port}`),
-  disconnect: () => api.post<ApiResponse<unknown>>('/Opc/disconnect'),
+    api.get<ApiResponse<string[]>>(
+      `/api/Discover?networkPrefix=${encodeURIComponent(networkPrefix)}&port=${port}`
+    ),
+  disconnect: () => api.post<ApiResponse<unknown>>('/api/Opc/disconnect'),
 };
