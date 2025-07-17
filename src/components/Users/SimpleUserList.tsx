@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { UserDto } from '../../services';
 import { userController } from '../../controllers/userController';
+import { ConfirmToast } from '../ConfirmToast';
 
 export const SimpleUserList: React.FC = () => {
   const [users, setUsers] = useState<UserDto[]>([]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const loadUsers = () => {
     userController
@@ -16,12 +19,12 @@ export const SimpleUserList: React.FC = () => {
     loadUsers();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
-      await userController.delete(id);
-      setUsers(current => current.filter(u => u.id !== id));
-      loadUsers();
-    }
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    await userController.delete(deleteId);
+    setUsers(current => current.filter(u => u.id !== deleteId));
+    setDeleteId(null);
+    loadUsers();
   };
 
   return (
@@ -53,10 +56,10 @@ export const SimpleUserList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                     <button
-                      onClick={() => handleDelete(user.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
+                      onClick={() => setDeleteId(user.id)}
+                      className="p-2 rounded-md text-red-600 hover:bg-red-50"
                     >
-                      Sil
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
@@ -70,6 +73,12 @@ export const SimpleUserList: React.FC = () => {
           <p className="text-gray-500">Hiç kullanıcı bulunamadı.</p>
         </div>
       )}
+      <ConfirmToast
+        open={deleteId !== null}
+        message="Bu kullanıcıyı silmek istediğinize emin misiniz?"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 };
