@@ -9,6 +9,7 @@ import { templateController } from '../../controllers/templateController';
 import { ConfirmToast } from '../ConfirmToast';
 import { SimpleToast } from '../SimpleToast';
 import { TemplateCreateForm } from './TemplateCreateForm';
+import { ReportModal } from './ReportModal';
 
 export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
@@ -18,6 +19,7 @@ export const TemplateList: React.FC = () => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [reportTemplate, setReportTemplate] = useState<ReportTemplateDto | null>(null);
 
   const loadData = () => {
     templateService
@@ -86,6 +88,10 @@ export const TemplateList: React.FC = () => {
   const handleManageTags = (id: number) => {
     window.history.pushState({}, '', `/Templates/${id}/Tags`);
     window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
+  const handleCreateReport = (template: ReportTemplateDto) => {
+    setReportTemplate(template);
   };
 
   if (showCreateForm) {
@@ -204,6 +210,14 @@ export const TemplateList: React.FC = () => {
                   Yönet
                 </button>
               </div>
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={() => handleCreateReport(template)}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Rapor Oluştur
+                </button>
+              </div>
             </div>
 
             {/* metadata like creator or date not provided by API */}
@@ -227,6 +241,9 @@ export const TemplateList: React.FC = () => {
         open={showToast}
         onClose={() => setShowToast(false)}
       />
+      {reportTemplate && (
+        <ReportModal template={reportTemplate} onClose={() => setReportTemplate(null)} />
+      )}
     </div>
   );
 };
