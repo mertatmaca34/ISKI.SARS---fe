@@ -23,6 +23,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   const [opcEndpoint, setOpcEndpoint] = useState('');
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [selected, setSelected] = useState<Record<string, TreeNode>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [loadingTree, setLoadingTree] = useState(false);
 
@@ -54,12 +55,14 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
     try {
       const res = await opcService.tree('');
       setTree(res.data);
+      setExpanded({ [res.data.nodeId]: true });
     } catch {
       try {
         if (opcEndpoint) {
           await opcService.connect(opcEndpoint);
           const res = await opcService.tree('');
           setTree(res.data);
+          setExpanded({ [res.data.nodeId]: true });
         } else {
           setTree(null);
         }
@@ -105,29 +108,50 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
     loadTags();
   };
 
-  const renderTree = (node: TreeNode) => (
-    <li key={node.nodeId} className="mt-1">
-      <div className="flex items-center space-x-2">
-        {node.nodeClass === 'Variable' ? (
-          <label className="inline-flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={!!selected[node.nodeId]}
-              onChange={() => toggleNode(node)}
-            />
-            <span>{node.displayName}</span>
-          </label>
-        ) : (
-          <span className="font-semibold">{node.displayName}</span>
+  const toggleExpand = (id: string) =>
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  const renderTree = (node: TreeNode) => {
+    const isLeaf = node.nodeClass === 'Variable';
+    const isOpen = expanded[node.nodeId];
+
+    return (
+      <li key={node.nodeId} className="mt-1">
+        <div className="flex items-center space-x-2">
+          {!isLeaf && (
+            <button
+              onClick={() => toggleExpand(node.nodeId)}
+              className="w-4 h-4 flex items-center justify-center"
+            >
+              {isOpen ? '▾' : '▸'}
+            </button>
+          )}
+          {isLeaf ? (
+            <label className="inline-flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={!!selected[node.nodeId]}
+                onChange={() => toggleNode(node)}
+              />
+              <span>{node.displayName}</span>
+            </label>
+          ) : (
+            <span
+              className="font-semibold cursor-pointer"
+              onClick={() => toggleExpand(node.nodeId)}
+            >
+              {node.displayName}
+            </span>
+          )}
+        </div>
+        {isOpen && node.children && node.children.length > 0 && (
+          <ul className="pl-4 border-l ml-2">
+            {node.children.map((child) => renderTree(child))}
+          </ul>
         )}
-      </div>
-      {node.children && node.children.length > 0 && (
-        <ul className="pl-4 border-l ml-2">
-          {node.children.map((child) => renderTree(child))}
-        </ul>
-      )}
-    </li>
-  );
+      </li>
+    );
+  };
 
   return (
     <div className="space-y-6">
