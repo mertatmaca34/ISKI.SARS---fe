@@ -5,6 +5,7 @@ interface RoleSelectToastProps {
   open: boolean;
   claims: OperationClaimDto[];
   defaultClaimId?: number;
+  anchor?: { top: number; left: number };
   onConfirm: (claimId: number) => void;
   onCancel: () => void;
 }
@@ -13,6 +14,7 @@ export const RoleSelectToast: React.FC<RoleSelectToastProps> = ({
   open,
   claims,
   defaultClaimId,
+  anchor,
   onConfirm,
   onCancel,
 }) => {
@@ -24,9 +26,17 @@ export const RoleSelectToast: React.FC<RoleSelectToastProps> = ({
 
   if (!open) return null;
 
+  const containerClass = anchor
+    ? 'fixed z-50'
+    : 'fixed top-4 inset-x-0 flex justify-center z-50';
+  const containerStyle = anchor ? { top: anchor.top, left: anchor.left } : {};
+  const innerClass = `bg-white border border-gray-200 rounded-lg shadow-lg p-4 flex items-center space-x-2${
+    anchor ? ' transform -translate-x-full' : ''
+  }`;
+
   return (
-    <div className="fixed top-4 inset-x-0 flex justify-center z-50">
-      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4 flex items-center space-x-2">
+    <div className={containerClass} style={containerStyle}>
+      <div className={innerClass}>
         <select
           value={claimId}
           onChange={(e) => setClaimId(Number(e.target.value))}

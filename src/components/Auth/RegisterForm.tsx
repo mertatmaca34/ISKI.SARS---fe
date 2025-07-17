@@ -46,7 +46,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
           <h2 className="mt-6 text-3xl font-bold text-gray-900">İSKİ SARS</h2>
           <p className="mt-2 text-sm text-gray-600">SCADA Arşivleme ve Raporlama Sistemi</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off">
           <div className="bg-white p-8 rounded-lg shadow-md space-y-6">
             {error && (
               <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-md">
@@ -89,6 +89,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="off"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 required
               />
@@ -102,6 +103,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 required
               />
