@@ -1,23 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, Database, Globe, Bell, Shield } from 'lucide-react';
+import { SystemSettings } from '../../types';
+import { systemSettingsService } from '../../services';
 
 export const Settings: React.FC = () => {
-  const [settings, setSettings] = useState({
-    opcServerUrl: 'opc.tcp://192.168.1.100:4840',
-    dbConnectionString: 'postgresql://user:pass@localhost:5432/iskisars',
-    dataRetentionDays: 90,
+  const [settings, setSettings] = useState<SystemSettings>({
+    opcServerUrl: '',
+    databaseConnection: '',
+    retentionDays: 0,
     emailNotifications: true,
-    smsNotifications: false,
-    alertThreshold: 85,
+    smsNotifications: true,
+    alertThreshold: 0,
+    sessionTimeout: 0,
+    logLevel: 0,
     backupEnabled: true,
-    backupInterval: 24,
-    logLevel: 'info',
-    sessionTimeout: 30
+    backupIntervalHours: 0,
   });
 
+  useEffect(() => {
+    systemSettingsService
+      .get()
+      .then((data) => setSettings(data))
+      .catch(() => {
+        /* handle error */
+      });
+  }, []);
+
   const handleSave = () => {
-    // Save settings logic here
-    alert('Ayarlar kaydedildi!');
+    systemSettingsService
+      .save(settings)
+      .then(() => alert('Ayarlar kaydedildi!'))
+      .catch(() => {
+        /* handle error */
+      });
   };
 
   return (
@@ -60,8 +75,8 @@ export const Settings: React.FC = () => {
               </label>
               <input
                 type="text"
-                value={settings.dbConnectionString}
-                onChange={(e) => setSettings({...settings, dbConnectionString: e.target.value})}
+                value={settings.databaseConnection}
+                onChange={(e) => setSettings({...settings, databaseConnection: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -72,8 +87,8 @@ export const Settings: React.FC = () => {
               </label>
               <input
                 type="number"
-                value={settings.dataRetentionDays}
-                onChange={(e) => setSettings({...settings, dataRetentionDays: Number(e.target.value)})}
+                value={settings.retentionDays}
+                onChange={(e) => setSettings({...settings, retentionDays: Number(e.target.value)})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -152,13 +167,13 @@ export const Settings: React.FC = () => {
               </label>
               <select
                 value={settings.logLevel}
-                onChange={(e) => setSettings({...settings, logLevel: e.target.value})}
+                onChange={(e) => setSettings({...settings, logLevel: Number(e.target.value)})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="error">Error</option>
-                <option value="warn">Warning</option>
-                <option value="info">Info</option>
-                <option value="debug">Debug</option>
+                <option value={0}>Error</option>
+                <option value={1}>Warning</option>
+                <option value={2}>Info</option>
+                <option value={3}>Debug</option>
               </select>
             </div>
           </div>
@@ -190,8 +205,8 @@ export const Settings: React.FC = () => {
               </label>
               <input
                 type="number"
-                value={settings.backupInterval}
-                onChange={(e) => setSettings({...settings, backupInterval: Number(e.target.value)})}
+                value={settings.backupIntervalHours}
+                onChange={(e) => setSettings({...settings, backupIntervalHours: Number(e.target.value)})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={!settings.backupEnabled}
               />
