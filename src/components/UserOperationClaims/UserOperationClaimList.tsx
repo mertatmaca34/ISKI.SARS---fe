@@ -56,17 +56,14 @@ export const UserOperationClaimList: React.FC = () => {
     claim: UserOperationClaimDto,
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
-
     const rect = e.currentTarget.getBoundingClientRect();
     setDialogPos({ top: rect.top, left: rect.left });
-    
+    setDialogClaim(claim);
+    setShowDialog(true);
+
     try {
       const res = await operationClaimService.list({ index: 0, size: 10 });
       setAvailableClaims(res.items);
-      setDialogClaim(claim);
-      const rect = e.currentTarget.getBoundingClientRect();
-      setDialogPos({ top: rect.top, left: rect.left });
-      setShowDialog(true);
     } catch {
       setAvailableClaims([]);
     }
