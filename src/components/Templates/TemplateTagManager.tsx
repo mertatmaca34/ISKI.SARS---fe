@@ -183,21 +183,23 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
         </div>
 
         <div>
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={fetchTree}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              Opc Taglarını Getir
-            </button>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 max-h-96 overflow-auto">
-            {loadingTree && (
-              <p className="text-center text-sm text-gray-500">Yükleniyor...</p>
-            )}
-            {!loadingTree && tree && (
-              <ul className="text-sm">{renderTree(tree)}</ul>
-            )}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="flex justify-end p-4 border-b">
+              <button
+                onClick={fetchTree}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                Opc Taglarını Getir
+              </button>
+            </div>
+            <div className="p-4 max-h-96 overflow-auto">
+              {loadingTree && (
+                <p className="text-center text-sm text-gray-500">Yükleniyor...</p>
+              )}
+              {!loadingTree && tree && (
+                <ul className="text-sm">{renderTree(tree)}</ul>
+              )}
+            </div>
           </div>
           <div className="flex justify-end pt-4">
             <button
