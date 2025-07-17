@@ -217,7 +217,7 @@ export const Settings: React.FC = () => {
           </div>
         </div>
       </div>
-      </div>
+     </div>
       <SimpleToast
         message="Ayarlar başarıyla kaydedildi."
         open={showToast}

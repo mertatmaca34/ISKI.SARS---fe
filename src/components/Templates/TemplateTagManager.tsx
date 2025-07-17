@@ -52,13 +52,20 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   const fetchTree = async () => {
     setLoadingTree(true);
     try {
-      if (opcEndpoint) {
-        await opcService.connect(opcEndpoint);
-      }
       const res = await opcService.tree('');
       setTree(res.data);
     } catch {
-      setTree(null);
+      try {
+        if (opcEndpoint) {
+          await opcService.connect(opcEndpoint);
+          const res = await opcService.tree('');
+          setTree(res.data);
+        } else {
+          setTree(null);
+        }
+      } catch {
+        setTree(null);
+      }
     } finally {
       setLoadingTree(false);
     }
