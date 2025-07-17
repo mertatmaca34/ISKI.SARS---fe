@@ -1,28 +1,34 @@
 import React, { useState } from 'react';
 import { Archive, AlertCircle, Loader2 } from 'lucide-react';
-import { authStore } from '../../store/authStore';
+import { authService } from '../../services';
+import { SimpleToast } from '../SimpleToast';
 
-interface LoginFormProps {
-  onLogin: () => void;
-  onShowRegister: () => void;
+interface RegisterFormProps {
+  onBack: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onShowRegister }) => {
+export const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
     try {
-      await authStore.login(email, password);
-      onLogin();
+      await authService.register({ firstName, lastName, email, password });
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+        onBack();
+      }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Giriş yapılamadı');
+      setError(err instanceof Error ? err.message : 'Kayıt başarısız');
     } finally {
       setIsLoading(false);
     }
@@ -40,7 +46,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onShowRegister })
           <h2 className="mt-6 text-3xl font-bold text-gray-900">İSKİ SARS</h2>
           <p className="mt-2 text-sm text-gray-600">SCADA Arşivleme ve Raporlama Sistemi</p>
         </div>
-
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="bg-white p-8 rounded-lg shadow-md space-y-6">
             {error && (
@@ -49,7 +54,32 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onShowRegister })
                 <span className="text-red-700 text-sm">{error}</span>
               </div>
             )}
-
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                İsim
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                Soyisim
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 E-posta
@@ -63,7 +93,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onShowRegister })
                 required
               />
             </div>
-
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Şifre
@@ -77,37 +106,32 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onShowRegister })
                 required
               />
             </div>
-
             <button
               type="submit"
               disabled={isLoading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                'Giriş Yap'
-              )}
+              {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Kayıt Ol'}
+            </button>
+            <button
+              type="button"
+              onClick={onBack}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Girişe Dön
             </button>
           </div>
         </form>
-
-        <div className="text-center">
-          <div className="text-sm text-gray-600 bg-white p-4 rounded-lg shadow-sm">
-            <p className="font-medium mb-2">Demo Hesapları:</p>
-            <p>Admin: admin / admin123</p>
-            <p>Operatör: operator / op123</p>
-          </div>
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={onShowRegister}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Kayıt Ol
-            </button>
-          </div>
-        </div>
       </div>
+      <SimpleToast
+        message="Yöneticinizin onayını beklemelisiniz"
+        open={showToast}
+        onClose={() => {
+          setShowToast(false);
+          onBack();
+        }}
+      />
     </div>
-  );};
+  );
+};
+
