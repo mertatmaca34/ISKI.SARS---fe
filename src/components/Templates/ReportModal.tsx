@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { reportService, ReportTemplateDto } from '../../services';
 import { SimpleToast } from '../SimpleToast';
 
@@ -13,21 +13,21 @@ export const ReportModal: React.FC<ReportModalProps> = ({ template, onClose }) =
   const [format, setFormat] = useState<'pdf' | 'excel'>('pdf');
   const [message, setMessage] = useState('');
   const [openToast, setOpenToast] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [fileName, setFileName] = useState('');
 
   const generate = async () => {
     try {
-      if (downloadUrl) {
-        URL.revokeObjectURL(downloadUrl);
-        setDownloadUrl(null);
-      }
       const blob = await reportService.generate(template.id, start, end, format);
       const ext = format === 'pdf' ? 'pdf' : 'xlsx';
+      const fileName = `${template.name}-${start}-${end}.${ext}`;
       const url = URL.createObjectURL(blob);
-      setDownloadUrl(url);
-      setFileName(`${template.name}-${start}-${end}.${ext}`);
-      setMessage('Rapor hazır. İndir butonuna tıklayın.');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setMessage('Rapor indiriliyor...');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Rapor oluşturulamadı');
     } finally {
@@ -36,19 +36,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({ template, onClose }) =
   };
 
   const close = () => {
-    if (downloadUrl) {
-      URL.revokeObjectURL(downloadUrl);
-    }
     onClose();
   };
-
-  useEffect(() => {
-    return () => {
-      if (downloadUrl) {
-        URL.revokeObjectURL(downloadUrl);
-      }
-    };
-  }, [downloadUrl]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
@@ -94,23 +83,12 @@ export const ReportModal: React.FC<ReportModalProps> = ({ template, onClose }) =
         </div>
         <div className="flex justify-end space-x-2 pt-2">
           <button onClick={close} className="bg-gray-200 px-3 py-1 rounded-md">İptal</button>
-          {!downloadUrl && (
-            <button
-              onClick={generate}
-              className="bg-blue-600 text-white px-3 py-1 rounded-md"
-            >
-              Oluştur
-            </button>
-          )}
-          {downloadUrl && (
-            <a
-              href={downloadUrl}
-              download={fileName}
-              className="bg-blue-600 text-white px-3 py-1 rounded-md"
-            >
-              İndir
-            </a>
-          )}
+          <button
+            onClick={generate}
+            className="bg-blue-600 text-white px-3 py-1 rounded-md"
+          >
+            Oluştur
+          </button>
         </div>
       </div>
       <SimpleToast message={message} open={openToast} onClose={() => setOpenToast(false)} />
