@@ -31,7 +31,7 @@ export const RoleSelectToast: React.FC<RoleSelectToastProps> = ({
     : 'fixed top-4 inset-x-0 flex justify-center z-50';
   const containerStyle = anchor ? { top: anchor.top, left: anchor.left } : {};
   const innerClass = `bg-white border border-gray-200 rounded-lg shadow-lg p-4 flex items-center space-x-2${
-    anchor ? ' transform -translate-x-full mr-2' : ''
+    anchor ? ' transform -translate-x-full' : ''
   }`;
 
   return (
