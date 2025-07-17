@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LoginForm } from './components/Auth/LoginForm';
+import { RegisterForm } from './components/Auth/RegisterForm';
 import { Header } from './components/Layout/Header';
 import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Dashboard/Dashboard';
@@ -68,7 +69,10 @@ function App() {
   };
 
   if (!isAuthenticated) {
-    return <LoginForm onLogin={handleLogin} />;
+    if (route === '/register') {
+      return <RegisterForm onBack={() => navigate('/')} />;
+    }
+    return <LoginForm onLogin={handleLogin} onShowRegister={() => navigate('/register')} />;
   }
 
   if (route.startsWith('/Templates/Edit/')) {
