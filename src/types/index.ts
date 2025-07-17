@@ -68,3 +68,16 @@ export interface DashboardStats {
   alerts24h: number;
   uptime: string;
 }
+
+export interface SystemSettings {
+  opcServerUrl: string;
+  databaseConnection: string;
+  retentionDays: number;
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+  alertThreshold: number;
+  sessionTimeout: number;
+  logLevel: number;
+  backupEnabled: boolean;
+  backupIntervalHours: number;
+}
