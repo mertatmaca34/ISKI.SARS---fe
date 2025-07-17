@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Trash2 } from 'lucide-react';
 import {
   tagService,
   templateService,
   ReportTemplateTagDto,
   ReportTemplateDto,
 } from '../../services';
+import { ConfirmToast } from '../ConfirmToast';
 
 export const TagList: React.FC = () => {
   const [tags, setTags] = useState<ReportTemplateTagDto[]>([]);
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('all');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     tagService
@@ -34,6 +36,13 @@ export const TagList: React.FC = () => {
   const getTemplateName = (templateId: number) => {
     const template = templates.find((t) => t.id === templateId);
     return template?.name || 'Bilinmiyor';
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId === null) return;
+    await tagService.delete(deleteId);
+    setTags((current) => current.filter((t) => t.id !== deleteId));
+    setDeleteId(null);
   };
 
 
@@ -87,6 +96,7 @@ export const TagList: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Node ID
                 </th>
+                <th className="px-6 py-3" />
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -101,6 +111,14 @@ export const TagList: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
                     {tag.tagNodeId}
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <button
+                      onClick={() => setDeleteId(tag.id)}
+                      className="p-2 rounded-md text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -113,6 +131,12 @@ export const TagList: React.FC = () => {
           <p className="text-gray-500">Hiç etiket bulunamadı.</p>
         </div>
       )}
+      <ConfirmToast
+        open={deleteId !== null}
+        message="Bu etiketi silmek istediğinize emin misiniz?"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 };
