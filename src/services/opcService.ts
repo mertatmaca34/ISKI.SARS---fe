@@ -24,7 +24,7 @@ export interface TreeNode {
   displayName: string;
   nodeId: string;
   nodeClass: string;
-  children: string[];
+  children: TreeNode[];
 }
 
 export const opcService = {
