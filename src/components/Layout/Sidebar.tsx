@@ -5,7 +5,6 @@ import {
   Tags,
   Users,
   Settings,
-  Activity,
   Shield,
   Key,
   UserCog
