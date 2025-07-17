@@ -89,25 +89,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onShowRegister })
                 'Giriş Yap'
               )}
             </button>
-          </div>
-        </form>
-
-        <div className="text-center">
-          <div className="text-sm text-gray-600 bg-white p-4 rounded-lg shadow-sm">
-            <p className="font-medium mb-2">Demo Hesapları:</p>
-            <p>Admin: admin / admin123</p>
-            <p>Operatör: operator / op123</p>
-          </div>
-          <div className="mt-4">
             <button
               type="button"
               onClick={onShowRegister}
-              className="text-sm text-blue-600 hover:underline"
+              className="w-full flex justify-center py-2 px-4 border border-blue-600 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Kayıt Ol
             </button>
           </div>
-        </div>
+        </form>
+
       </div>
     </div>
-  );};
+  );
+};
