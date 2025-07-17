@@ -48,14 +48,20 @@ export const UserOperationClaimList: React.FC = () => {
   );
   const [availableClaims, setAvailableClaims] = useState<OperationClaimDto[]>([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [dialogPos, setDialogPos] = useState<{ top: number; left: number }>();
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
 
-  const openDialog = async (claim: UserOperationClaimDto) => {
+  const openDialog = async (
+    claim: UserOperationClaimDto,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     try {
       const res = await operationClaimService.list({ index: 0, size: 10 });
       setAvailableClaims(res.items);
       setDialogClaim(claim);
+      const rect = e.currentTarget.getBoundingClientRect();
+      setDialogPos({ top: rect.top, left: rect.left });
       setShowDialog(true);
     } catch {
       setAvailableClaims([]);
@@ -82,6 +88,7 @@ export const UserOperationClaimList: React.FC = () => {
     } finally {
       setShowDialog(false);
       setDialogClaim(null);
+      setDialogPos(undefined);
     }
   };
 
@@ -114,7 +121,7 @@ export const UserOperationClaimList: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button
-                        onClick={() => openDialog(claim)}
+                        onClick={(e) => openDialog(claim, e)}
                         className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
                       >
                         {name.toLowerCase() === 'beklemede' ? 'Yetki Ver' : 'Yetki Değiştir'}
@@ -147,8 +154,12 @@ export const UserOperationClaimList: React.FC = () => {
         open={showDialog}
         claims={availableClaims}
         defaultClaimId={dialogClaim?.operationClaimId}
+        anchor={dialogPos}
         onConfirm={handleChangeClaim}
-        onCancel={() => setShowDialog(false)}
+        onCancel={() => {
+          setShowDialog(false);
+          setDialogPos(undefined);
+        }}
       />
       <SimpleToast
         message={toastMessage}
