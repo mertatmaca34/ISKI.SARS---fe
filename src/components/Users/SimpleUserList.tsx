@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit2 } from 'lucide-react';
 import { UserDto } from '../../services';
 import { userController } from '../../controllers/userController';
 import { ConfirmToast } from '../ConfirmToast';
@@ -25,6 +25,11 @@ export const SimpleUserList: React.FC = () => {
     setUsers(current => current.filter(u => u.id !== deleteId));
     setDeleteId(null);
     loadUsers();
+  };
+
+  const handleEdit = (id: string) => {
+    window.history.pushState({}, '', `/Users/Edit/${id}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   return (
@@ -55,12 +60,20 @@ export const SimpleUserList: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button
-                      onClick={() => setDeleteId(user.id)}
-                      className="p-2 rounded-md text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center justify-end space-x-2">
+                      <button
+                        onClick={() => handleEdit(user.id)}
+                        className="p-2 rounded-md text-gray-600 hover:bg-gray-50"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(user.id)}
+                        className="p-2 rounded-md text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
