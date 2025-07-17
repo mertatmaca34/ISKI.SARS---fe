@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Database, Globe, Bell, Shield } from 'lucide-react';
 import { SystemSettings } from '../../types';
 import { systemSettingsService } from '../../services';
+import { SimpleToast } from '../SimpleToast';
 
 export const Settings: React.FC = () => {
   const [settings, setSettings] = useState<SystemSettings>({
@@ -16,6 +17,7 @@ export const Settings: React.FC = () => {
     backupEnabled: true,
     backupIntervalHours: 0,
   });
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     systemSettingsService
@@ -29,14 +31,15 @@ export const Settings: React.FC = () => {
   const handleSave = () => {
     systemSettingsService
       .save(settings)
-      .then(() => alert('Ayarlar kaydedildi!'))
+      .then(() => setShowToast(true))
       .catch(() => {
         /* handle error */
       });
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Sistem Ayarları</h1>
         <button
@@ -214,6 +217,11 @@ export const Settings: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      <SimpleToast
+        message="Ayarlar başarıyla kaydedildi."
+        open={showToast}
+        onClose={() => setShowToast(false)}
+      />
+    </>
   );
 };
