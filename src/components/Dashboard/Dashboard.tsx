@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  FileText, 
-  Tags, 
-  Database, 
-  Activity, 
-  Users, 
-  AlertTriangle, 
+import {
+  FileText,
+  Tags,
+  Database,
+  Activity as ActivityIcon,
+  Users,
+  AlertTriangle,
   TrendingUp,
   Server
 } from 'lucide-react';
@@ -35,7 +35,7 @@ export const Dashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <Activity className="h-4 w-4" />
+          <ActivityIcon className="h-4 w-4" />
           <span>Son güncelleme: {new Date().toLocaleTimeString('tr-TR')}</span>
         </div>
       </div>
