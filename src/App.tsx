@@ -7,6 +7,7 @@ import { TemplateList } from './components/Templates/TemplateList';
 import { TemplateEditForm } from './components/Templates/TemplateEditForm';
 import { TagList } from './components/Tags/TagList';
 import { SimpleUserList } from './components/Users/SimpleUserList';
+import { UserEditForm } from './components/Users/UserEditForm';
 import { LogList } from './components/Logs/LogList';
 import { Settings } from './components/Settings/Settings';
 import { TemplateTagManager } from './components/Templates/TemplateTagManager';
@@ -80,6 +81,23 @@ function App() {
           <main className="flex-1 p-6">
             <div className="max-w-7xl mx-auto">
               <TemplateEditForm id={id} onSuccess={() => navigate('/Templates')} onCancel={() => navigate('/Templates')} />
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (route.startsWith('/Users/Edit/')) {
+    const id = route.split('/').pop() || '';
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
+        <div className="flex">
+          <Sidebar activeTab="users" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
+          <main className="flex-1 p-6">
+            <div className="max-w-7xl mx-auto">
+              <UserEditForm id={id} onSuccess={() => navigate('/Users')} onCancel={() => navigate('/Users')} />
             </div>
           </main>
         </div>
