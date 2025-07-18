@@ -9,6 +9,7 @@ import { templateController } from '../../controllers/templateController';
 import { ConfirmToast } from '../ConfirmToast';
 import { SimpleToast } from '../SimpleToast';
 import { TemplateCreateForm } from './TemplateCreateForm';
+import { TemplateReportModal } from '../Reports/TemplateReportModal';
 
 export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
@@ -18,6 +19,7 @@ export const TemplateList: React.FC = () => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [reportTemplate, setReportTemplate] = useState<{ id: number; name: string } | null>(null);
 
   const loadData = () => {
     templateService
@@ -204,6 +206,14 @@ export const TemplateList: React.FC = () => {
                   Yönet
                 </button>
               </div>
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={() => setReportTemplate({ id: template.id, name: template.name })}
+                  className="px-2 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Rapor Oluştur
+                </button>
+              </div>
             </div>
 
             {/* metadata like creator or date not provided by API */}
@@ -227,6 +237,13 @@ export const TemplateList: React.FC = () => {
         open={showToast}
         onClose={() => setShowToast(false)}
       />
+      {reportTemplate && (
+        <TemplateReportModal
+          templateId={reportTemplate.id}
+          templateName={reportTemplate.name}
+          onClose={() => setReportTemplate(null)}
+        />
+      )}
     </div>
   );
 };
