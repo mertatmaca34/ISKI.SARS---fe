@@ -18,10 +18,13 @@ export const DataChart: React.FC = () => {
     const now = new Date();
     const start = new Date(now);
     start.setHours(start.getHours() - 24, 0, 0, 0);
+    const end = new Date(now);
+    end.setMinutes(59, 59, 999);
 
     const query: DynamicQuery = {
       filters: [
         { field: 'timestamp', operator: 'gte', value: start.toISOString() },
+        { field: 'timestamp', operator: 'lte', value: end.toISOString() },
       ],
       sorts: [{ field: 'timestamp', direction: 'asc' }],
     };
@@ -83,7 +86,9 @@ export const DataChart: React.FC = () => {
           
           {/* Chart line */}
           <polyline
-            points={data.map((d, i) => `${(i * 66.67)},${200 - (d.value / maxValue) * 160}`).join(' ')}
+            points={data
+              .map((d, i) => `${(i * (400 / Math.max(data.length - 1, 1)))},${200 - (d.value / maxValue) * 160}`)
+              .join(' ')}
             fill="none"
             stroke="#3b82f6"
             strokeWidth="2"
@@ -93,7 +98,7 @@ export const DataChart: React.FC = () => {
           {data.map((d, i) => (
             <circle
               key={d.time}
-              cx={i * 66.67}
+              cx={i * (400 / Math.max(data.length - 1, 1))}
               cy={200 - (d.value / maxValue) * 160}
               r="4"
               fill="#3b82f6"
