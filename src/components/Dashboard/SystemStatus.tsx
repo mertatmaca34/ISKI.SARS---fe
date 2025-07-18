@@ -68,8 +68,11 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Sistem Durumu</h3>
       
       <div className="space-y-4">
-        {metrics.map((metric) => (
-          <div key={metric.id} className={`p-4 rounded-lg border ${getStatusColor(metric.status)}`}>
+        {metrics.map((metric, idx) => (
+          <div
+            key={metric.id ?? idx}
+            className={`p-4 rounded-lg border ${getStatusColor(metric.status)}`}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 {getStatusIcon(metric.status)}
