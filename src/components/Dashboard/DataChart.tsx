@@ -12,22 +12,36 @@ export const DataChart: React.FC = () => {
 
   useEffect(() => {
     instantValueService
-      .list({ index: 0, size: 24 })
+      .list({ index: 0, size: 2000 })
       .then((response) => {
         const items = response.items as InstantValueDto[];
-        const points = items.map((item) => ({
-          time: new Date(item.timestamp).toLocaleTimeString('tr-TR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          value: Number(item.value),
-        }));
+        const counts: Record<string, number> = {};
+
+        const now = new Date();
+        items.forEach((item) => {
+          const date = new Date(item.timestamp);
+          if (now.getTime() - date.getTime() > 24 * 3600 * 1000) return;
+          date.setMinutes(0, 0, 0);
+          const key = date.toISOString().slice(0, 13); // YYYY-MM-DDTHH
+          counts[key] = (counts[key] ?? 0) + 1;
+        });
+
+        const points: ChartPoint[] = [];
+        for (let i = 23; i >= 0; i--) {
+          const hourDate = new Date(now.getTime() - i * 3600 * 1000);
+          const key = hourDate.toISOString().slice(0, 13);
+          const label = hourDate
+            .toLocaleTimeString('tr-TR', { hour: '2-digit' })
+            .replace(':', '');
+          points.push({ time: label, value: counts[key] ?? 0 });
+        }
+
         setData(points);
       })
       .catch(() => setData([]));
   }, []);
 
-  const maxValue = Math.max(...data.map(d => d.value));
+  const maxValue = Math.max(...data.map(d => d.value), 1);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -65,7 +79,7 @@ export const DataChart: React.FC = () => {
           {/* Data points */}
           {data.map((d, i) => (
             <circle
-              key={i}
+              key={d.time}
               cx={i * 66.67}
               cy={200 - (d.value / maxValue) * 160}
               r="4"
@@ -76,8 +90,8 @@ export const DataChart: React.FC = () => {
         
         {/* X-axis labels */}
         <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 pt-2">
-          {data.map((d, i) => (
-            <span key={i}>{d.time}</span>
+          {data.map((d) => (
+            <span key={d.time}>{d.time}</span>
           ))}
         </div>
       </div>
