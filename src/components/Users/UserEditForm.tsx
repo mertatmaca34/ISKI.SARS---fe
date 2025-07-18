@@ -49,7 +49,7 @@ export const UserEditForm: React.FC<UserEditFormProps> = ({ id, onSuccess, onCan
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <h1 className="text-2xl font-semibold text-gray-900">Kullanıcıyı Düzenle</h1>
       <form
         onSubmit={handleSubmit}
