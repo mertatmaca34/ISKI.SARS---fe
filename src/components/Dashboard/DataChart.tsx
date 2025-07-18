@@ -22,18 +22,13 @@ export const DataChart: React.FC = () => {
     };
 
     instantValueService
-      .list({ index: 0, size: 2000 }, query)
       .then((response) => {
         const items = response.items as InstantValueDto[];
         const counts: Record<string, number> = {};
-
-        items.forEach((item) => {
-          const date = new Date(item.timestamp);
           const key = date.toISOString().slice(0, 13); // YYYY-MM-DDTHH
           counts[key] = (counts[key] ?? 0) + 1;
         });
 
-        const now = new Date();
         const points: ChartPoint[] = [];
         for (let i = 23; i >= 0; i--) {
           const hourDate = new Date(now.getTime() - i * 3600 * 1000);
@@ -87,7 +82,7 @@ export const DataChart: React.FC = () => {
           {/* Data points */}
           {data.map((d, i) => (
             <circle
-              key={i}
+              key={d.time}
               cx={i * 66.67}
               cy={200 - (d.value / maxValue) * 160}
               r="4"
@@ -98,8 +93,8 @@ export const DataChart: React.FC = () => {
         
         {/* X-axis labels */}
         <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 pt-2">
-          {data.map((d, i) => (
-            <span key={i}>{d.time}</span>
+          {data.map((d) => (
+            <span key={d.time}>{d.time}</span>
           ))}
         </div>
       </div>
