@@ -116,7 +116,7 @@ function App() {
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex h-[calc(100vh-4rem)]">
           <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
-          <main className="flex-1 px-2 py-4 overflow-y-auto">
+          <main className="flex-1 p-4 overflow-y-auto">
             <div className="h-full">
               <TemplateTagManager templateId={id} onBack={() => navigate('/Templates')} />
             </div>
