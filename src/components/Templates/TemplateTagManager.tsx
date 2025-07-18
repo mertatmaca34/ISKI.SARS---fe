@@ -170,7 +170,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-hidden">
         <div className="h-full flex flex-col">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col">
-            <div className="overflow-x-auto flex-1">
+            <div className="overflow-auto flex-1">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>

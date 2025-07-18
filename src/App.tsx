@@ -114,9 +114,9 @@ function App() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
-        <div className="flex h-[calc(100vh-4rem)]">
+        <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
           <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
-          <main className="flex-1 p-4 overflow-y-auto">
+          <main className="flex-1 p-4 overflow-hidden">
             <div className="h-full">
               <TemplateTagManager templateId={id} onBack={() => navigate('/Templates')} />
             </div>
