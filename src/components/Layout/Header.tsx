@@ -38,8 +38,12 @@ export const Header: React.FC<HeaderProps> = ({ onLogout, onOpenUserSettings }) 
               </div>
             </button>
             <button
-              onClick={onLogout}
-              className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                if (window.confirm('Çıkış yapmak istediğinize emin misiniz?')) {
+                  onLogout();
+                }
+              }}
+              className="flex items-center space-x-2 px-3 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
             >
               <LogOut className="h-4 w-4" />
               <span>Çıkış</span>
