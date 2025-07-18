@@ -7,8 +7,17 @@ interface SystemStatusProps {
 }
 
 export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
+  const normalizeStatus = (status: string) => {
+    const s = status.toLowerCase();
+    if (['connected', 'ok', 'healthy', 'running'].includes(s)) return 'healthy';
+    if (['warning', 'degraded'].includes(s)) return 'warning';
+    if (['disconnected', 'critical', 'error', 'failed'].includes(s)) return 'critical';
+    return 'unknown';
+  };
+
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    const normalized = normalizeStatus(status);
+    switch (normalized) {
       case 'healthy':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
       case 'warning':
@@ -21,7 +30,8 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    const normalized = normalizeStatus(status);
+    switch (normalized) {
       case 'healthy':
         return 'bg-green-50 border-green-200';
       case 'warning':
@@ -31,6 +41,27 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
       default:
         return 'bg-gray-50 border-gray-200';
     }
+  };
+
+  const getStatusTextColor = (status: string) => {
+    const normalized = normalizeStatus(status);
+    switch (normalized) {
+      case 'healthy':
+        return 'text-green-600';
+      case 'warning':
+        return 'text-yellow-600';
+      case 'critical':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const formatValue = (metric: SystemMetric) => {
+    if (metric.value === 1) {
+      return 'Bağlı';
+    }
+    return `${metric.value} ${metric.unit}`.trim();
   };
 
   return (
@@ -51,15 +82,9 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-gray-900">
-                  {metric.value} {metric.unit}
-                </p>
-                <p className={`text-sm font-medium capitalize ${
-                  metric.status === 'healthy' ? 'text-green-600' : 
-                  metric.status === 'warning' ? 'text-yellow-600' : 'text-red-600'
-                }`}>
-                  {metric.status === 'healthy' ? 'Sağlıklı' : 
-                   metric.status === 'warning' ? 'Uyarı' : 'Kritik'}
+                <p className="font-semibold text-gray-900">{formatValue(metric)}</p>
+                <p className={`text-sm font-medium capitalize ${getStatusTextColor(metric.status)}`}>
+                  {metric.status}
                 </p>
               </div>
             </div>
