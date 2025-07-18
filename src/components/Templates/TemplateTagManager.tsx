@@ -169,8 +169,8 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
         <div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-auto h-[calc(100vh-16rem)]">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-[calc(100vh-12rem)] flex flex-col">
+            <div className="flex-1 overflow-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -214,7 +214,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
         </div>
 
         <div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-[calc(100vh-12rem)] flex flex-col">
             <div className="flex justify-end p-4 border-b space-x-2">
               <button
                 onClick={fetchTree}
@@ -230,7 +230,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                 Kaydet
               </button>
             </div>
-            <div className="p-4 overflow-auto h-[calc(100vh-16rem)]">
+            <div className="flex-1 p-4 overflow-auto">
               {loadingTree && (
                 <p className="text-center text-sm text-gray-500">Yükleniyor...</p>
               )}

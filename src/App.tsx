@@ -80,7 +80,7 @@ function App() {
   if (route.startsWith('/Templates/Edit/')) {
     const id = parseInt(route.split('/').pop() || '0', 10);
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-screen overflow-hidden bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
           <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
@@ -97,7 +97,7 @@ function App() {
   if (route.startsWith('/Users/Edit/')) {
     const id = route.split('/').pop() || '';
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-screen overflow-hidden bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
           <Sidebar activeTab="users" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
@@ -114,7 +114,7 @@ function App() {
   if (route.startsWith('/Templates/') && route.endsWith('/Tags')) {
     const id = parseInt(route.split('/')[2] || '0', 10);
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-screen overflow-hidden bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
           <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
@@ -129,7 +129,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`${isTagsTab ? 'h-screen overflow-hidden' : 'min-h-screen'} bg-gray-50`}>
       <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
       <div className="flex">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
