@@ -51,7 +51,7 @@ export const UserCreateForm: React.FC<UserCreateFormProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <h1 className="text-2xl font-semibold text-gray-900">Yeni Kullanıcı</h1>
       <form
         onSubmit={handleSubmit}

@@ -93,7 +93,7 @@ export const UserSettings: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <Toast
         open={showToast}
         message={toastMessage}

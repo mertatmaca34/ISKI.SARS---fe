@@ -33,6 +33,8 @@ function App() {
     setRoute(path);
   };
 
+  const isTagsTab = activeTab === 'tags';
+
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
@@ -78,12 +80,12 @@ function App() {
   if (route.startsWith('/Templates/Edit/')) {
     const id = parseInt(route.split('/').pop() || '0', 10);
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-screen overflow-hidden bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
           <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
-          <main className="flex-1 p-6">
-            <div className="max-w-7xl mx-auto">
+          <main className="flex-1 p-4">
+            <div className="mx-2 max-w-none">
               <TemplateEditForm id={id} onSuccess={() => navigate('/Templates')} onCancel={() => navigate('/Templates')} />
             </div>
           </main>
@@ -95,12 +97,12 @@ function App() {
   if (route.startsWith('/Users/Edit/')) {
     const id = route.split('/').pop() || '';
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-screen overflow-hidden bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
           <Sidebar activeTab="users" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
-          <main className="flex-1 p-6">
-            <div className="max-w-7xl mx-auto">
+          <main className="flex-1 p-4">
+            <div className="mx-2 max-w-none">
               <UserEditForm id={id} onSuccess={() => navigate('/Users')} onCancel={() => navigate('/Users')} />
             </div>
           </main>
@@ -112,12 +114,12 @@ function App() {
   if (route.startsWith('/Templates/') && route.endsWith('/Tags')) {
     const id = parseInt(route.split('/')[2] || '0', 10);
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-screen overflow-hidden bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
           <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
-          <main className="flex-1 p-6">
-            <div className="max-w-7xl mx-auto">
+          <main className="flex-1 p-4">
+            <div className="mx-2 max-w-none">
               <TemplateTagManager templateId={id} onBack={() => navigate('/Templates')} />
             </div>
           </main>
@@ -127,12 +129,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`${isTagsTab ? 'h-screen overflow-hidden' : 'min-h-screen'} bg-gray-50`}>
       <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
       <div className="flex">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-4">
+          <div className="mx-2 max-w-none">
             {renderContent()}
           </div>
         </main>

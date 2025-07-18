@@ -33,7 +33,7 @@ export const SimpleUserList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <h1 className="text-2xl font-semibold text-gray-900">Kullanıcılar</h1>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
