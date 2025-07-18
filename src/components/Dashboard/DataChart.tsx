@@ -1,17 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
+import { instantValueService, InstantValueDto } from '../../services';
+
+interface ChartPoint {
+  time: string;
+  value: number;
+}
 
 export const DataChart: React.FC = () => {
-  // Mock data for demonstration
-  const data = [
-    { time: '00:00', value: 45 },
-    { time: '04:00', value: 52 },
-    { time: '08:00', value: 68 },
-    { time: '12:00', value: 85 },
-    { time: '16:00', value: 92 },
-    { time: '20:00', value: 78 },
-    { time: '24:00', value: 65 }
-  ];
+  const [data, setData] = useState<ChartPoint[]>([]);
+
+  useEffect(() => {
+    instantValueService
+      .list({ index: 0, size: 24 })
+      .then((response) => {
+        const items = response.items as InstantValueDto[];
+        const points = items.map((item) => ({
+          time: new Date(item.timestamp).toLocaleTimeString('tr-TR', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          value: Number(item.value),
+        }));
+        setData(points);
+      })
+      .catch(() => setData([]));
+  }, []);
 
   const maxValue = Math.max(...data.map(d => d.value));
 
