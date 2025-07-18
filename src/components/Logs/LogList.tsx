@@ -4,6 +4,9 @@ import { LogDto, LogLevel } from '../../types';
 
 export const LogList: React.FC = () => {
   const [logs, setLogs] = useState<LogDto[]>([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [level, setLevel] = useState('');
 
   useEffect(() => {
     logService
@@ -14,9 +17,56 @@ export const LogList: React.FC = () => {
 
   const levelToString = (level: LogLevel) => LogLevel[level];
 
+  const logLevels = Object.keys(LogLevel).filter((v) => isNaN(Number(v)));
+
+  const filteredLogs = logs.filter((log) => {
+    const date = new Date(log.createdAt);
+    if (startDate && date < new Date(startDate)) return false;
+    if (endDate && date > new Date(endDate)) return false;
+    if (level && log.level !== Number(level)) return false;
+    return true;
+  });
+
   return (
     <div className="space-y-6 px-2">
       <h1 className="text-2xl font-semibold text-gray-900">Loglar</h1>
+
+      <div className="flex flex-wrap gap-4">
+        <div>
+          <label className="block text-sm text-gray-700">Başlangıç</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="border border-gray-300 rounded-md p-1"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-700">Bitiş</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="border border-gray-300 rounded-md p-1"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-700">Seviye</label>
+          <select
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            className="border border-gray-300 rounded-md p-1"
+          >
+            <option value="">Tümü</option>
+            {logLevels.map((l) => (
+              <option key={l} value={LogLevel[l as keyof typeof LogLevel]}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -28,12 +78,12 @@ export const LogList: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {logs.map((log) => (
+              {filteredLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-gray-900">
                     {levelToString(log.level)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-gray-900 break-all whitespace-normal">
                     {log.message}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
