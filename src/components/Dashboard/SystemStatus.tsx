@@ -9,20 +9,19 @@ interface SystemStatusProps {
 export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
   const normalizeStatus = (status: string) => {
     const s = status.toLowerCase();
-    if (['connected', 'ok', 'healthy', 'running'].includes(s)) return 'healthy';
+    if (['bad', 'critical', 'error', 'failed', 'disconnected'].includes(s)) return 'bad';
     if (['warning', 'degraded'].includes(s)) return 'warning';
-    if (['disconnected', 'critical', 'error', 'failed'].includes(s)) return 'critical';
-    return 'unknown';
+    return 'good';
   };
 
   const getStatusIcon = (status: string) => {
     const normalized = normalizeStatus(status);
     switch (normalized) {
-      case 'healthy':
+      case 'good':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
       case 'warning':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-      case 'critical':
+      case 'bad':
         return <XCircle className="h-5 w-5 text-red-500" />;
       default:
         return <AlertCircle className="h-5 w-5 text-gray-500" />;
@@ -32,11 +31,11 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
   const getStatusColor = (status: string) => {
     const normalized = normalizeStatus(status);
     switch (normalized) {
-      case 'healthy':
+      case 'good':
         return 'bg-green-50 border-green-200';
       case 'warning':
         return 'bg-yellow-50 border-yellow-200';
-      case 'critical':
+      case 'bad':
         return 'bg-red-50 border-red-200';
       default:
         return 'bg-gray-50 border-gray-200';
@@ -46,11 +45,11 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
   const getStatusTextColor = (status: string) => {
     const normalized = normalizeStatus(status);
     switch (normalized) {
-      case 'healthy':
+      case 'good':
         return 'text-green-600';
       case 'warning':
         return 'text-yellow-600';
-      case 'critical':
+      case 'bad':
         return 'text-red-600';
       default:
         return 'text-gray-600';

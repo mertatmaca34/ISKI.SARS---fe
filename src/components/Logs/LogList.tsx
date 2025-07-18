@@ -6,6 +6,7 @@ export const LogList: React.FC = () => {
   const [logs, setLogs] = useState<LogDto[]>([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [level, setLevel] = useState('');
 
   useEffect(() => {
@@ -27,15 +28,21 @@ export const LogList: React.FC = () => {
     return true;
   });
 
+  const sortedLogs = [...filteredLogs].sort((a, b) => {
+    const diff =
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    return sortOrder === 'asc' ? diff : -diff;
+  });
+
   return (
     <div className="space-y-6 px-2">
       <h1 className="text-2xl font-semibold text-gray-900">Loglar</h1>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 w-full">
         <div>
           <label className="block text-sm text-gray-700">Başlangıç</label>
           <input
-            type="date"
+            type="datetime-local"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             className="border border-gray-300 rounded-md p-1"
@@ -44,7 +51,7 @@ export const LogList: React.FC = () => {
         <div>
           <label className="block text-sm text-gray-700">Bitiş</label>
           <input
-            type="date"
+            type="datetime-local"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             className="border border-gray-300 rounded-md p-1"
@@ -65,6 +72,19 @@ export const LogList: React.FC = () => {
             ))}
           </select>
         </div>
+        <div>
+          <label className="block text-sm text-gray-700">Sıralama</label>
+          <select
+            value={sortOrder}
+            onChange={(e) =>
+              setSortOrder(e.target.value as 'asc' | 'desc')
+            }
+            className="border border-gray-300 rounded-md p-1"
+          >
+            <option value="desc">Yeni &gt; Eski</option>
+            <option value="asc">Eski &gt; Yeni</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -78,7 +98,7 @@ export const LogList: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredLogs.map((log) => (
+              {sortedLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {levelToString(log.level)}
