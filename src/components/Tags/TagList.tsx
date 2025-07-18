@@ -47,7 +47,7 @@ export const TagList: React.FC = () => {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Etiketler</h1>
       </div>
@@ -83,10 +83,11 @@ export const TagList: React.FC = () => {
 
       {/* Tags Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-auto h-[calc(100vh-12rem)]">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3" />
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Etiket Adı
                 </th>
@@ -96,12 +97,19 @@ export const TagList: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Node ID
                 </th>
-                <th className="px-6 py-3" />
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredTags.map((tag) => (
                 <tr key={tag.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <button
+                      onClick={() => setDeleteId(tag.id)}
+                      className="p-2 rounded-md text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {tag.tagName}
                   </td>
@@ -110,14 +118,6 @@ export const TagList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
                     {tag.tagNodeId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button
-                      onClick={() => setDeleteId(tag.id)}
-                      className="p-2 rounded-md text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
                   </td>
                 </tr>
               ))}
