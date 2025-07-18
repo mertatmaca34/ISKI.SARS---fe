@@ -12,11 +12,32 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     },
     ...options,
   });
+
+  const text = await response.text();
+
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || response.statusText);
+    let message = response.statusText;
+    try {
+      const errorData = JSON.parse(text);
+      if (typeof errorData.message === 'string') {
+        message = errorData.message;
+      } else {
+        message = text || message;
+      }
+    } catch {
+      if (text) {
+        message = text;
+      }
+    }
+    throw new Error(message);
   }
-  return (await response.json()) as T;
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    // If response body is empty or not JSON
+    return undefined as T;
+  }
 }
 
 export const api = {
