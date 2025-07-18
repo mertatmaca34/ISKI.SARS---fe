@@ -48,6 +48,29 @@ export interface SystemMetric {
   lastUpdated: string;
 }
 
+export enum LogLevel {
+  Trace = 0,
+  Debug = 1,
+  Info = 2,
+  Warn = 3,
+  Error = 4,
+  Fatal = 5,
+}
+
+export interface LogDto {
+  id: number;
+  level: LogLevel;
+  message: string;
+  detail: string;
+  createdAt: string;
+}
+
+export interface CreateLogDto {
+  level: LogLevel;
+  message: string;
+  detail: string;
+}
+
 export interface LogEntry {
   id: string;
   userId: string;
