@@ -19,6 +19,19 @@ export const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats>(dataStore.getDashboardStats());
   const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>(dataStore.getSystemMetrics());
 
+  const normalizeStatus = (status: string) => {
+    const s = status.toLowerCase();
+    if (['bad', 'critical', 'error', 'failed', 'disconnected'].includes(s)) return 'bad';
+    if (['warning', 'degraded'].includes(s)) return 'warning';
+    return 'good';
+  };
+
+  const overallSystemHealth = React.useMemo(() => {
+    if (systemMetrics.some(m => normalizeStatus(m.status) === 'bad')) return 'bad';
+    if (systemMetrics.some(m => normalizeStatus(m.status) === 'warning')) return 'warning';
+    return 'good';
+  }, [systemMetrics]);
+
   useEffect(() => {
     dashboardService
       .stats()
@@ -90,9 +103,21 @@ export const Dashboard: React.FC = () => {
         />
         <DashboardCard
           title="Sistem Durumu"
-          value={stats.systemHealth === 'healthy' ? 'Sağlıklı' : 'Uyarı'}
+          value={
+            overallSystemHealth === 'good'
+              ? 'Sağlıklı'
+              : overallSystemHealth === 'warning'
+                ? 'Uyarı'
+                : 'Sağlıksız'
+          }
           icon={Server}
-          color={stats.systemHealth === 'healthy' ? 'green' : 'yellow'}
+          color={
+            overallSystemHealth === 'good'
+              ? 'green'
+              : overallSystemHealth === 'warning'
+                ? 'yellow'
+                : 'red'
+          }
         />
       </div>
     </div>
