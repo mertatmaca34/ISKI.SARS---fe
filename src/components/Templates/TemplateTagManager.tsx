@@ -154,7 +154,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full flex flex-col">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">
           Taglar - {templateName}
@@ -167,38 +167,38 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-hidden">
+        <div className="h-full flex flex-col">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col">
+            <div className="overflow-x-auto flex-1">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-4 py-3" />
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Etiket Adı
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Node ID
                     </th>
-                    <th></th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {tags.map((tag) => (
                     <tr key={tag.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {tag.tagName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
-                        {tag.tagNodeId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={() => setDeleteId(tag.id)}
                           className="p-2 rounded-md text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {tag.tagName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
+                        {tag.tagNodeId}
                       </td>
                     </tr>
                   ))}
@@ -213,8 +213,8 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
           )}
         </div>
 
-        <div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="h-full flex flex-col">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col">
             <div className="flex justify-end p-4 border-b">
               <button
                 onClick={fetchTree}
@@ -223,7 +223,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                 Opc Taglarını Getir
               </button>
             </div>
-            <div className="p-4 max-h-96 overflow-auto">
+            <div className="p-4 flex-1 overflow-auto">
               {loadingTree && (
                 <p className="text-center text-sm text-gray-500">Yükleniyor...</p>
               )}
