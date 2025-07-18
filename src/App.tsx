@@ -33,6 +33,8 @@ function App() {
     setRoute(path);
   };
 
+  const isTagsTab = activeTab === 'tags';
+
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
@@ -116,8 +118,8 @@ function App() {
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
           <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
-          <main className="flex-1 p-6">
-            <div className="max-w-7xl mx-auto">
+          <main className="flex-1 p-4">
+            <div className="mx-2 max-w-none">
               <TemplateTagManager templateId={id} onBack={() => navigate('/Templates')} />
             </div>
           </main>
@@ -131,8 +133,8 @@ function App() {
       <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
       <div className="flex">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
+        <main className={`flex-1 ${isTagsTab ? 'p-4' : 'p-6'}`}> 
+          <div className={isTagsTab ? 'mx-2 max-w-none' : 'max-w-7xl mx-auto'}>
             {renderContent()}
           </div>
         </main>
