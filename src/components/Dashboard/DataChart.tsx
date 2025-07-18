@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
-import { instantValueService, InstantValueDto, DynamicQuery } from '../../services';
+import {
+  instantValueService,
+  InstantValueDto,
+  DynamicQuery,
+} from '../../services';
 
 interface ChartPoint {
   time: string;
@@ -11,7 +15,8 @@ export const DataChart: React.FC = () => {
   const [data, setData] = useState<ChartPoint[]>([]);
 
   useEffect(() => {
-    const start = new Date();
+    const now = new Date();
+    const start = new Date(now);
     start.setHours(start.getHours() - 24, 0, 0, 0);
 
     const query: DynamicQuery = {
@@ -22,10 +27,15 @@ export const DataChart: React.FC = () => {
     };
 
     instantValueService
+      .list({ index: 0, size: 2000 }, query)
       .then((response) => {
         const items = response.items as InstantValueDto[];
         const counts: Record<string, number> = {};
-          const key = date.toISOString().slice(0, 13); // YYYY-MM-DDTHH
+
+        items.forEach((item) => {
+          const date = new Date(item.timestamp);
+          date.setMinutes(0, 0, 0);
+          const key = date.toISOString().slice(0, 13);
           counts[key] = (counts[key] ?? 0) + 1;
         });
 
