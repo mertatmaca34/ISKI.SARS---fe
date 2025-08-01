@@ -6,6 +6,7 @@ export interface ReportTemplateTagDto {
   reportTemplateId: number;
   tagName: string;
   tagNodeId: string;
+  description?: string;
 }
 
 export const tagService = {

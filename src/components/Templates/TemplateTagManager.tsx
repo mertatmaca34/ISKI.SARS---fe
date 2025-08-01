@@ -90,10 +90,14 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
     const newNodes = Object.values(selected);
     for (const node of newNodes) {
       if (!tags.some((t) => t.tagNodeId === node.nodeId)) {
+        const description = prompt(
+          `${node.displayName} için açıklama (isteğe bağlı)`
+        )?.trim();
         await tagService.create({
           reportTemplateId: templateId,
           tagName: node.displayName,
           tagNodeId: node.nodeId,
+          ...(description ? { description } : {}),
         });
       }
     }
@@ -209,6 +213,9 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Node ID
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Açıklama
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -227,6 +234,9 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
                         {tag.tagNodeId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {tag.description || '-'}
                       </td>
                     </tr>
                   ))}
