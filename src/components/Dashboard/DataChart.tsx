@@ -32,6 +32,12 @@ export const DataChart: React.FC = () => {
     instantValueService
       .list({ index: 0, size: 2000 }, query)
       .then((response) => {
+        if (!response || !Array.isArray(response.items)) {
+          console.error('API response structure is invalid', response);
+          setData([]);
+          return;
+        }
+
         const items = response.items as InstantValueDto[];
         const counts: Record<string, number> = {};
 
@@ -47,17 +53,20 @@ export const DataChart: React.FC = () => {
           const hourDate = new Date(now.getTime() - i * 3600 * 1000);
           const key = hourDate.toISOString().slice(0, 13);
           const label = hourDate
-            .toLocaleTimeString('tr-TR', { hour: '2-digit' })
-            .replace(':', '');
+            .toLocaleTimeString('tr-TR', { hour: '2-digit', hour12: false })
+            .padStart(2, '0');
           points.push({ time: label, value: counts[key] ?? 0 });
         }
 
         setData(points);
       })
-      .catch(() => setData([]));
+      .catch((err) => {
+        console.error('API error:', err);
+        setData([]);
+      });
   }, []);
 
-  const maxValue = Math.max(...data.map(d => d.value), 1);
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -68,13 +77,12 @@ export const DataChart: React.FC = () => {
           <span>Son 24 Saat</span>
         </div>
       </div>
-      
+
       <div className="relative h-48">
         <svg viewBox="0 0 400 200" className="w-full h-full">
-          {/* Grid lines */}
           {[0, 1, 2, 3, 4].map((i) => (
             <line
-              key={i}
+              key={`grid-${i}`}
               x1="0"
               y1={40 * i}
               x2="400"
@@ -83,21 +91,24 @@ export const DataChart: React.FC = () => {
               strokeWidth="1"
             />
           ))}
-          
-          {/* Chart line */}
+
           <polyline
             points={data
-              .map((d, i) => `${(i * (400 / Math.max(data.length - 1, 1)))},${200 - (d.value / maxValue) * 160}`)
+              .map(
+                (d, i) =>
+                  `${(i * (400 / Math.max(data.length - 1, 1)))},${
+                    200 - (d.value / maxValue) * 160
+                  }`
+              )
               .join(' ')}
             fill="none"
             stroke="#3b82f6"
             strokeWidth="2"
           />
-          
-          {/* Data points */}
+
           {data.map((d, i) => (
             <circle
-              key={d.time}
+              key={`point-${d.time}`}
               cx={i * (400 / Math.max(data.length - 1, 1))}
               cy={200 - (d.value / maxValue) * 160}
               r="4"
@@ -105,11 +116,10 @@ export const DataChart: React.FC = () => {
             />
           ))}
         </svg>
-        
-        {/* X-axis labels */}
+
         <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 pt-2">
           {data.map((d) => (
-            <span key={d.time}>{d.time}</span>
+            <span key={`label-${d.time}`}>{d.time}</span>
           ))}
         </div>
       </div>

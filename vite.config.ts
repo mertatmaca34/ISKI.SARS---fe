@@ -7,4 +7,8 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    host: '0.0.0.0', // tüm yerel IP'lere dinleme
+    port: 5173,      // istersen değiştirebilirsin
+  }
 });
