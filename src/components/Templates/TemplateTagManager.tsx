@@ -3,9 +3,9 @@ import { Trash2 } from 'lucide-react';
 import {
   tagService,
   templateService,
-  opcService,
+  archiveTagService,
   ReportTemplateTagDto,
-  TreeNode,
+  ArchiveTagDto,
 } from '../../services';
 import { ConfirmToast } from '../ConfirmToast';
 
@@ -19,13 +19,10 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   onBack,
 }) => {
   const [tags, setTags] = useState<ReportTemplateTagDto[]>([]);
+  const [available, setAvailable] = useState<ArchiveTagDto[]>([]);
   const [templateName, setTemplateName] = useState('');
-  const [opcEndpoint, setOpcEndpoint] = useState('');
-  const [tree, setTree] = useState<TreeNode | null>(null);
-  const [selected, setSelected] = useState<Record<string, TreeNode>>({});
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [selected, setSelected] = useState<Record<number, ArchiveTagDto>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [loadingTree, setLoadingTree] = useState(false);
 
   const loadTags = useCallback(() => {
     tagService
@@ -36,68 +33,42 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
       .catch(() => setTags([]));
   }, [templateId]);
 
+  const loadAvailable = useCallback(() => {
+    archiveTagService
+      .list({ index: 0, size: 200 })
+      .then((res) => setAvailable(res.items))
+      .catch(() => setAvailable([]));
+  }, []);
+
   useEffect(() => {
     templateService
       .getById(templateId)
-      .then((res) => {
-        setTemplateName(res.name);
-        setOpcEndpoint(res.opcEndpoint);
-      })
-      .catch(() => {
-        setTemplateName('');
-        setOpcEndpoint('');
-      });
+      .then((res) => setTemplateName(res.name))
+      .catch(() => setTemplateName(''));
     loadTags();
-  }, [templateId, loadTags]);
+    loadAvailable();
+  }, [templateId, loadTags, loadAvailable]);
 
-  const fetchTree = async () => {
-    setLoadingTree(true);
-    try {
-      const res = await opcService.tree('');
-      setTree(res.data);
-      setExpanded({ [res.data.nodeId]: true });
-    } catch {
-      try {
-        if (opcEndpoint) {
-          await opcService.connect(opcEndpoint);
-          const res = await opcService.tree('');
-          setTree(res.data);
-          setExpanded({ [res.data.nodeId]: true });
-        } else {
-          setTree(null);
-        }
-      } catch {
-        setTree(null);
-      }
-    } finally {
-      setLoadingTree(false);
-    }
-  };
-
-  const toggleNode = (node: TreeNode) => {
+  const toggleSelect = (tag: ArchiveTagDto) => {
     setSelected((prev) => {
       const copy = { ...prev };
-      if (copy[node.nodeId]) {
-        delete copy[node.nodeId];
+      if (copy[tag.id]) {
+        delete copy[tag.id];
       } else {
-        copy[node.nodeId] = node;
+        copy[tag.id] = tag;
       }
       return copy;
     });
   };
 
   const saveTags = async () => {
-    const newNodes = Object.values(selected);
-    for (const node of newNodes) {
-      if (!tags.some((t) => t.tagNodeId === node.nodeId)) {
-        const description = prompt(
-          `${node.displayName} için açıklama (isteğe bağlı)`
-        )?.trim();
+    for (const tag of Object.values(selected)) {
+      if (!tags.some((t) => t.tagNodeId === tag.tagNodeId)) {
         await tagService.create({
           reportTemplateId: templateId,
-          tagName: node.displayName,
-          tagNodeId: node.nodeId,
-          ...(description ? { description } : {}),
+          tagName: tag.tagName,
+          tagNodeId: tag.tagNodeId,
+          description: tag.description,
         });
       }
     }
@@ -110,51 +81,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
     await tagService.delete(deleteId);
     setDeleteId(null);
     loadTags();
-  };
-
-  const toggleExpand = (id: string) =>
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-
-  const renderTree = (node: TreeNode) => {
-    const isLeaf = node.nodeClass === 'Variable';
-    const isOpen = expanded[node.nodeId];
-
-    return (
-      <li key={node.nodeId} className="mt-1">
-        <div className="flex items-center space-x-2">
-          {!isLeaf && (
-            <button
-              onClick={() => toggleExpand(node.nodeId)}
-              className="w-4 h-4 flex items-center justify-center"
-            >
-              {isOpen ? '▾' : '▸'}
-            </button>
-          )}
-          {isLeaf ? (
-            <label className="inline-flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={!!selected[node.nodeId]}
-                onChange={() => toggleNode(node)}
-              />
-              <span>{node.displayName}</span>
-            </label>
-          ) : (
-            <span
-              className="font-semibold cursor-pointer"
-              onClick={() => toggleExpand(node.nodeId)}
-            >
-              {node.displayName}
-            </span>
-          )}
-        </div>
-        {isOpen && node.children && node.children.length > 0 && (
-          <ul className="pl-4 border-l ml-2">
-            {node.children.map((child) => renderTree(child))}
-          </ul>
-        )}
-      </li>
-    );
   };
 
   return (
@@ -174,13 +100,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
         <div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-[calc(100vh-12rem)] flex flex-col">
-            <div className="flex justify-end p-4 border-b space-x-2">
-              <button
-                onClick={fetchTree}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              >
-                Opc Taglarını Getir
-              </button>
+            <div className="flex justify-end p-4 border-b">
               <button
                 onClick={saveTags}
                 disabled={Object.keys(selected).length === 0}
@@ -189,13 +109,45 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                 Kaydet
               </button>
             </div>
-            <div className="flex-1 p-4 overflow-auto">
-              {loadingTree && (
-                <p className="text-center text-sm text-gray-500">Yükleniyor...</p>
-              )}
-              {!loadingTree && tree && (
-                <ul className="text-sm">{renderTree(tree)}</ul>
-              )}
+            <div className="flex-1 overflow-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3" />
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Etiket Adı
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Node ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Çekim Aralığı
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {available.map((tag) => (
+                    <tr key={tag.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <input
+                          type="checkbox"
+                          checked={!!selected[tag.id]}
+                          onChange={() => toggleSelect(tag)}
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {tag.tagName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
+                        {tag.tagNodeId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {tag.pullInterval}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
