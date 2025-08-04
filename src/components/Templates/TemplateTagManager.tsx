@@ -211,9 +211,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                       Etiket Adı
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Node ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Açıklama
                     </th>
                   </tr>
@@ -231,9 +228,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {tag.tagName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
-                        {tag.tagNodeId}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {tag.description || '-'}
