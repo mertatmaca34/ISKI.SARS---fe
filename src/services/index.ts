@@ -10,3 +10,4 @@ export * from './instantValueService';
 export * from './opcService';
 export * from './systemSettingsService';
 export * from './logService';
+export * from './archiveTagService';

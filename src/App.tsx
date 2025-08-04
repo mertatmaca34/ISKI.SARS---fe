@@ -15,6 +15,7 @@ import { TemplateTagManager } from './components/Templates/TemplateTagManager';
 import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
 import { UserOperationClaimList } from './components/UserOperationClaims/UserOperationClaimList';
 import { UserSettings } from './components/Users/UserSettings';
+import { ArchiveTagList } from './components/ArchiveTags/ArchiveTagList';
 import { authStore } from './store/authStore';
 
 function App() {
@@ -51,6 +52,8 @@ function App() {
         return <Dashboard />;
       case 'templates':
         return <TemplateList />;
+      case 'archive-tags':
+        return <ArchiveTagList />;
       case 'tags':
         return <TagList />;
       case 'operationclaims':
