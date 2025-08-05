@@ -8,6 +8,7 @@ import {
 } from '../../services';
 import { ConfirmToast } from '../ConfirmToast';
 import { authStore } from '../../store/authStore';
+import { TrendModal } from '../Trend/TrendModal';
 
 export const ArchiveTagList: React.FC = () => {
   const [tags, setTags] = useState<ArchiveTagDto[]>([]);
@@ -18,7 +19,7 @@ export const ArchiveTagList: React.FC = () => {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [interval, setInterval] = useState(10);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [detailTag, setDetailTag] = useState<ArchiveTagDto | null>(null);
+  const [trendTag, setTrendTag] = useState<ArchiveTagDto | null>(null);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
   const intervals = [1, 5, 10, 20, 30, 60, 300, 600, 3600, 86400];
 
@@ -181,7 +182,7 @@ export const ArchiveTagList: React.FC = () => {
                 <tr
                   key={tag.id}
                   className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setDetailTag(tag)}
+                  onClick={() => setTrendTag(tag)}
                 >
                   {isAdmin && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -275,27 +276,8 @@ export const ArchiveTagList: React.FC = () => {
         </div>
       )}
 
-      {detailTag && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg w-80 shadow-md">
-            <h2 className="text-lg font-semibold mb-2">{detailTag.tagName}</h2>
-            <p className="text-sm">
-              <span className="font-medium">Node ID:</span> {detailTag.tagNodeId}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Çekim Aralığı:</span> {detailTag.pullInterval}s
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Açıklama:</span> {detailTag.description || '-'}
-            </p>
-            <button
-              onClick={() => setDetailTag(null)}
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
-            >
-              Kapat
-            </button>
-          </div>
-        </div>
+      {trendTag && (
+        <TrendModal tag={trendTag} onClose={() => setTrendTag(null)} />
       )}
 
       <ConfirmToast
