@@ -7,16 +7,22 @@ const API_URL = (import.meta.env.VITE_API_URL || 'https://10.0.254.199:444/')
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const token = authStore.getAccessToken() || sessionStorage.getItem('Token');
 
+  // Abort request if it takes longer than 10 seconds
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
   try {
     const response = await fetch(API_URL + url, {
+      ...options,
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
-      ...options,
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
     const text = await response.text();
 
     if (!response.ok) {
@@ -43,6 +49,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
       return undefined as T;
     }
   } catch (error) {
+    clearTimeout(timeoutId);
     const mock = mockResponses[url];
     if (mock) {
       console.warn(`Using mock data for ${url} due to API error`, error);
