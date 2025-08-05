@@ -1,42 +1,58 @@
 import { authStore } from '../store/authStore';
+import { mockResponses } from './mockData';
+
 const API_URL = (import.meta.env.VITE_API_URL || 'https://10.0.254.199:444/')
   .replace(/\/+$/, '');
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const token = authStore.getAccessToken() || sessionStorage.getItem('Token');
-  const response = await fetch(API_URL + url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-    ...options,
-  });
-
-  const text = await response.text();
-
-  if (!response.ok) {
-    let message = response.statusText;
-    try {
-      const errorData = JSON.parse(text);
-      if (typeof errorData.message === 'string') {
-        message = errorData.message;
-      } else {
-        message = text || message;
-      }
-    } catch {
-      if (text) {
-        message = text;
-      }
-    }
-    throw new Error(message);
-  }
 
   try {
-    return JSON.parse(text) as T;
-  } catch {
-    // If response body is empty or not JSON
-    return undefined as T;
+    const response = await fetch(API_URL + url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+      ...options,
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      let message = response.statusText;
+      try {
+        const errorData = JSON.parse(text);
+        if (typeof errorData.message === 'string') {
+          message = errorData.message;
+        } else {
+          message = text || message;
+        }
+      } catch {
+        if (text) {
+          message = text;
+        }
+      }
+      throw new Error(message);
+    }
+
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      // If response body is empty or not JSON
+      return undefined as T;
+    }
+  } catch (error) {
+    const mock = mockResponses[url];
+    if (mock) {
+      console.warn(`Using mock data for ${url} due to API error`, error);
+      if (typeof mock === 'function') {
+        const body = (options as { body?: string }).body;
+        return mock(body) as T;
+      }
+      return mock as T;
+    }
+    throw error;
   }
 }
 
