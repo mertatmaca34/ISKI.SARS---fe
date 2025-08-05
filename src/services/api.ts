@@ -50,7 +50,8 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     }
   } catch (error) {
     clearTimeout(timeoutId);
-    const mock = mockResponses[url];
+    const cleanUrl = url.split('?')[0];
+    const mock = mockResponses[url] || mockResponses[cleanUrl];
     if (mock) {
       console.warn(`Using mock data for ${url} due to API error`, error);
       if (typeof mock === 'function') {
