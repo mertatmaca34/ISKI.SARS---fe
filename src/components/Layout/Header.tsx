@@ -1,6 +1,7 @@
 import React from 'react';
 import { User, LogOut, Settings } from 'lucide-react';
 import { authStore } from '../../store/authStore';
+import { SystemStatusIndicator } from './SystemStatusIndicator';
 
 interface HeaderProps {
   onLogout: () => void;
@@ -27,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout, onOpenUserSettings }) 
           </div>
 
           <div className="flex items-center space-x-4">
+            <SystemStatusIndicator />
             <button
               onClick={onOpenUserSettings}
               className="flex items-center space-x-2 focus:outline-none hover:bg-gray-100 px-2 py-1 rounded-md"
