@@ -61,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5 flex-shrink-0" />
                 {!isCollapsed && <span>{item.label}</span>}
               </button>
             );
