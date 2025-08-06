@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BarChart3,
   FileText,
@@ -19,6 +19,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   const currentUser = authStore.getCurrentUser();
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, roles: ['admin', 'operator'] },
@@ -37,9 +38,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   );
 
   return (
-    <div className="w-64 bg-gray-800 min-h-screen">
+    <div
+      className={`bg-gray-800 min-h-screen transition-all duration-300 ${
+        isCollapsed ? 'w-16' : 'w-64'
+      }`}
+      onMouseEnter={() => setIsCollapsed(false)}
+      onMouseLeave={() => setIsCollapsed(true)}
+    >
       <div className="p-4">
-        
         <nav className="space-y-2">
           {filteredItems.map((item) => {
             const Icon = item.icon;
@@ -47,14 +53,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left transition-colors ${
+                className={`w-full flex items-center py-2 rounded-md text-left transition-colors ${
+                  isCollapsed ? 'justify-center px-2' : 'space-x-3 px-3'
+                } ${
                   activeTab === item.id
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
               >
                 <Icon className="h-5 w-5" />
-                <span>{item.label}</span>
+                {!isCollapsed && <span>{item.label}</span>}
               </button>
             );
           })}
