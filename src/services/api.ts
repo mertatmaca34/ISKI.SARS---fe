@@ -1,5 +1,4 @@
 import { authStore } from '../store/authStore';
-import { mockResponses } from './mockData';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'https://10.0.254.199:444/')
   .replace(/\/+$/, '');
@@ -50,16 +49,6 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     }
   } catch (error) {
     clearTimeout(timeoutId);
-    const cleanUrl = url.split('?')[0];
-    const mock = mockResponses[url] || mockResponses[cleanUrl];
-    if (mock) {
-      console.warn(`Using mock data for ${url} due to API error`, error);
-      if (typeof mock === 'function') {
-        const body = (options as { body?: string }).body;
-        return mock(body) as T;
-      }
-      return mock as T;
-    }
     throw error;
   }
 }

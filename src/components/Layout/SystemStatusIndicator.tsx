@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
 import { dashboardService } from '../../services';
-import { dataStore } from '../../store/dataStore';
 import { SystemMetric } from '../../types';
 
 const normalizeStatus = (status: string) => {
@@ -19,13 +18,13 @@ const getBannerMessage = (metric: SystemMetric) => {
 };
 
 export const SystemStatusIndicator: React.FC = () => {
-  const [metrics, setMetrics] = useState<SystemMetric[]>(dataStore.getSystemMetrics());
+  const [metrics, setMetrics] = useState<SystemMetric[]>([]);
 
   useEffect(() => {
     dashboardService
       .metrics()
       .then(setMetrics)
-      .catch(() => setMetrics(dataStore.getSystemMetrics()));
+      .catch(() => setMetrics([]));
   }, []);
 
   const badMetric = metrics.find(m => normalizeStatus(m.status) === 'bad');
