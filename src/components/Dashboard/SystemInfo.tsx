@@ -13,11 +13,18 @@ import { DashboardCard } from './DashboardCard';
 import { SystemStatus } from './SystemStatus';
 import { DataChart } from './DataChart';
 import { dashboardService, DashboardStats, SystemMetric } from '../../services';
-import { dataStore } from '../../store/dataStore';
 
 export const SystemInfo: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats>(dataStore.getDashboardStats());
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>(dataStore.getSystemMetrics());
+  const [stats, setStats] = useState<DashboardStats>({
+    totalTemplates: 0,
+    activeTags: 0,
+    dataPoints24h: 0,
+    systemHealth: '',
+    activeUsers: 0,
+    alerts24h: 0,
+    uptime: '',
+  });
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>([]);
 
   const normalizeStatus = (status: string) => {
     const s = status.toLowerCase();
@@ -30,11 +37,11 @@ export const SystemInfo: React.FC = () => {
     dashboardService
       .stats()
       .then(setStats)
-      .catch(() => setStats(dataStore.getDashboardStats()));
+      .catch(() => {});
     dashboardService
       .metrics()
       .then(setSystemMetrics)
-      .catch(() => setSystemMetrics(dataStore.getSystemMetrics()));
+      .catch(() => {});
   }, []);
 
   const badMetrics = systemMetrics.filter((m) => normalizeStatus(m.status) === 'bad');
