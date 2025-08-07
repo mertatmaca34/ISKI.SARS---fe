@@ -10,8 +10,6 @@ interface TemplateEditFormProps {
 
 export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSuccess, onCancel }) => {
   const [name, setName] = useState('');
-  const [opcEndpoint, setOpcEndpoint] = useState('');
-  const [pullInterval, setPullInterval] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,8 +18,6 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
   useEffect(() => {
     templateService.getById(id).then((res) => {
       setName(res.name);
-      setOpcEndpoint(res.opcEndpoint);
-      setPullInterval(res.pullInterval);
       setIsActive(!!res.isActive);
     });
   }, [id]);
@@ -31,7 +27,7 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
     setError('');
     setIsLoading(true);
     try {
-      await templateService.update({ id, name, opcEndpoint, pullInterval, isActive });
+      await templateService.update({ id, name, isActive });
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -53,26 +49,6 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">OPC Endpoint</label>
-          <input
-            type="text"
-            value={opcEndpoint}
-            onChange={(e) => setOpcEndpoint(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Çekme Aralığı (s)</label>
-          <input
-            type="number"
-            value={pullInterval}
-            onChange={(e) => setPullInterval(Number(e.target.value))}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
