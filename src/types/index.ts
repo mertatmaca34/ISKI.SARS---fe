@@ -12,8 +12,6 @@ export interface ReportTemplate {
   id: string;
   name: string;
   description: string;
-  opcEndpoint: string;
-  collectionInterval: number; // in seconds
   createdBy: string;
   createdAt: string;
   isActive: boolean;

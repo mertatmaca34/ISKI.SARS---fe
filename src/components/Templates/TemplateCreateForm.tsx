@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
-import { templateService } from '../../services';
+import React, { useState, useEffect } from 'react';
+import {
+  templateService,
+  archiveTagService,
+  tagService,
+  ArchiveTagDto,
+} from '../../services';
 
 interface TemplateCreateFormProps {
   onSuccess: () => void;
@@ -8,18 +13,45 @@ interface TemplateCreateFormProps {
 
 export const TemplateCreateForm: React.FC<TemplateCreateFormProps> = ({ onSuccess, onCancel }) => {
   const [name, setName] = useState('');
-  const [opcEndpoint, setOpcEndpoint] = useState('');
-  const [pullInterval, setPullInterval] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [available, setAvailable] = useState<ArchiveTagDto[]>([]);
+  const [selected, setSelected] = useState<Record<number, ArchiveTagDto>>({});
+
+  useEffect(() => {
+    archiveTagService
+      .list({ index: 0, size: 200 })
+      .then((res) => setAvailable(res.items))
+      .catch(() => setAvailable([]));
+  }, []);
+
+  const toggleSelect = (tag: ArchiveTagDto) => {
+    setSelected((prev) => {
+      const copy = { ...prev };
+      if (copy[tag.id]) {
+        delete copy[tag.id];
+      } else {
+        copy[tag.id] = tag;
+      }
+      return copy;
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     try {
-      await templateService.create({ name, opcEndpoint, pullInterval, isActive });
+      const template = await templateService.create({ name, isActive });
+      for (const tag of Object.values(selected)) {
+        await tagService.create({
+          reportTemplateId: template.id,
+          tagName: tag.tagName,
+          tagNodeId: tag.tagNodeId,
+          description: tag.description,
+        });
+      }
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Hata oluştu');
@@ -42,26 +74,6 @@ export const TemplateCreateForm: React.FC<TemplateCreateFormProps> = ({ onSucces
             required
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">OPC Endpoint</label>
-          <input
-            type="text"
-            value={opcEndpoint}
-            onChange={(e) => setOpcEndpoint(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Çekme Aralığı (s)</label>
-          <input
-            type="number"
-            value={pullInterval}
-            onChange={(e) => setPullInterval(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
         <div className="flex items-center space-x-2">
           <input
             id="isActive"
@@ -71,6 +83,43 @@ export const TemplateCreateForm: React.FC<TemplateCreateFormProps> = ({ onSucces
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
           <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Aktif</label>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Taglar</label>
+          <div className="max-h-60 overflow-auto border border-gray-200 rounded">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2" />
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Etiket Adı
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Node ID
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Çekim Aralığı
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {available.map((tag) => (
+                  <tr key={tag.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={!!selected[tag.id]}
+                        onChange={() => toggleSelect(tag)}
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{tag.tagName}</td>
+                    <td className="px-4 py-2 text-sm font-mono text-gray-600">{tag.tagNodeId}</td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{tag.pullInterval}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex space-x-2 pt-2">

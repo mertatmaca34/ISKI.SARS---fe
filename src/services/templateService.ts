@@ -3,8 +3,6 @@ import { api } from './api';
 export interface ReportTemplateDto {
   id: number;
   name: string;
-  opcEndpoint: string;
-  pullInterval: number;
   isActive?: boolean;
 }
 
