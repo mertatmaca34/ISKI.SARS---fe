@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   BarChart3,
   FileText,
-  Tags,
   Users,
   Settings,
   Shield,
