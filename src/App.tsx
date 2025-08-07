@@ -6,7 +6,6 @@ import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { TemplateList } from './components/Templates/TemplateList';
 import { TemplateEditForm } from './components/Templates/TemplateEditForm';
-import { TagList } from './components/Tags/TagList';
 import { SimpleUserList } from './components/Users/SimpleUserList';
 import { UserEditForm } from './components/Users/UserEditForm';
 import { LogList } from './components/Logs/LogList';
@@ -33,9 +32,6 @@ function App() {
     window.history.pushState({}, '', path);
     setRoute(path);
   };
-
-  const isTagsTab = activeTab === 'tags';
-
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
@@ -54,8 +50,6 @@ function App() {
         return <TemplateList />;
       case 'archive-tags':
         return <ArchiveTagList />;
-      case 'tags':
-        return <TagList />;
       case 'operationclaims':
         return <OperationClaimList />;
       case 'useroperationclaims':
@@ -132,7 +126,7 @@ function App() {
   }
 
   return (
-    <div className={`${isTagsTab ? 'h-screen overflow-hidden' : 'min-h-screen'} bg-gray-50`}>
+    <div className="min-h-screen bg-gray-50">
       <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
       <div className="flex">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
