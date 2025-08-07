@@ -174,14 +174,6 @@ export const TemplateList: React.FC = () => {
 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">OPC Endpoint:</span>
-                <span className="font-mono text-xs">{template.opcEndpoint}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Çekme Aralığı:</span>
-                <span>{template.pullInterval}s</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-gray-600">Etiket Sayısı:</span>
                 <span>{tags[template.id] || 0}</span>
               </div>

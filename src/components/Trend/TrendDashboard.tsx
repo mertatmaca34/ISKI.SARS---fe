@@ -95,35 +95,46 @@ export const TrendDashboard: React.FC = () => {
   const maxValue = Math.max(...points.map((d) => d.value), 1);
 
   return (
-    <div className="space-y-4">
-      <div className="flex space-x-2 items-end">
-        <select
-          value={tagToAdd}
-          onChange={(e) =>
-            setTagToAdd(e.target.value ? Number(e.target.value) : '')
-          }
-          className="border rounded p-1"
-        >
-          <option value="">Tag seç...</option>
-          {tags
-            .filter((t) => !selectedIds.includes(t.id))
-            .map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.tagName}
-              </option>
-            ))}
-        </select>
-        <button
-          onClick={handleAddTag}
-          disabled={tagToAdd === '' || selectedIds.length >= 5}
-          className="bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-50"
-        >
-          Ekle
-        </button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">Trend Analiz</h1>
+        {activeTag && (
+          <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            <span>Son güncelleme: {new Date().toLocaleTimeString('tr-TR')}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-4">
+        <div className="flex space-x-2 items-end">
+          <select
+            value={tagToAdd}
+            onChange={(e) =>
+              setTagToAdd(e.target.value ? Number(e.target.value) : '')
+            }
+            className="border rounded p-2"
+          >
+            <option value="">Etiket seç...</option>
+            {tags
+              .filter((t) => !selectedIds.includes(t.id))
+              .map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.tagName}
+                </option>
+              ))}
+          </select>
+          <button
+            onClick={handleAddTag}
+            disabled={tagToAdd === '' || selectedIds.length >= 5}
+            className="bg-blue-600 text-white px-3 py-2 rounded disabled:opacity-50"
+          >
+            Ekle
+          </button>
       </div>
 
       {selectedTags.length > 0 && (
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap gap-2">
           {selectedTags.map((t) => (
             <button
               key={t.id}
@@ -141,8 +152,8 @@ export const TrendDashboard: React.FC = () => {
       )}
 
       {activeTag ? (
-        <div id="trend-dashboard-content">
-          <div className="flex space-x-2 items-end mb-4 mt-2">
+        <div id="trend-dashboard-content" className="space-y-4">
+          <div className="flex flex-wrap gap-2 items-end">
             <div>
               <label className="text-xs">Başlangıç</label>
               <input
@@ -183,7 +194,7 @@ export const TrendDashboard: React.FC = () => {
             </button>
           </div>
 
-          <div className="relative h-48 mb-4">
+          <div className="relative h-64">
             <svg viewBox="0 0 400 200" className="w-full h-full">
               {[0, 1, 2, 3, 4].map((i) => (
                 <line
@@ -230,25 +241,18 @@ export const TrendDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Max:</span> {max}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <DashboardCard title="Max" value={max} icon={TrendingUp} color="blue" />
+              <DashboardCard title="Min" value={min} icon={TrendingDown} color="green" />
+              <DashboardCard title="Ortalama" value={avg.toFixed(2)} icon={Activity} color="yellow" />
+              <DashboardCard title="Toplam" value={points.length} icon={Hash} color="blue" />
             </div>
-            <div>
-              <span className="font-medium">Min:</span> {min}
-            </div>
-            <div>
-              <span className="font-medium">Ortalama:</span> {avg.toFixed(2)}
-            </div>
-            <div>
-              <span className="font-medium">Toplam:</span> {points.length}
-            </div>
-          </div>
         </div>
       ) : (
-        <div className="text-center text-gray-500">Trend görmek için tag seçin.</div>
+        <div className="text-center text-gray-500">Trend görmek için etiket seçin.</div>
       )}
     </div>
+  </div>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2 } from 'lucide-react';
+import { Plus, Search, Trash2, Loader2 } from 'lucide-react';
 import {
   archiveTagService,
   ArchiveTagDto,
@@ -20,6 +20,7 @@ export const ArchiveTagList: React.FC = () => {
   const [interval, setInterval] = useState(10);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [trendTag, setTrendTag] = useState<ArchiveTagDto | null>(null);
+  const [isTreeLoading, setIsTreeLoading] = useState(false);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
   const intervals = [1, 5, 10, 20, 30, 60, 300, 600, 3600, 86400];
 
@@ -34,12 +35,15 @@ export const ArchiveTagList: React.FC = () => {
   }, []);
 
   const fetchTree = async () => {
+    setIsTreeLoading(true);
     try {
       const res = await opcService.tree('');
       setTree(res.data);
       setExpanded({ [res.data.nodeId]: true });
     } catch {
       setTree(null);
+    } finally {
+      setIsTreeLoading(false);
     }
   };
 
@@ -252,9 +256,14 @@ export const ArchiveTagList: React.FC = () => {
               <div className="space-x-2">
                 <button
                   onClick={fetchTree}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                  disabled={isTreeLoading}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
                 >
-                  Opc Taglarını Getir
+                  {isTreeLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'Opc Taglarını Getir'
+                  )}
                 </button>
                 <button
                   onClick={saveSelected}
@@ -266,7 +275,11 @@ export const ArchiveTagList: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 overflow-auto p-4">
-              {tree ? (
+              {isTreeLoading ? (
+                <div className="flex justify-center items-center h-full">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                </div>
+              ) : tree ? (
                 <ul className="text-sm">{renderTree(tree)}</ul>
               ) : (
                 <p className="text-center text-sm text-gray-500">Veri yok</p>
