@@ -71,7 +71,7 @@ export const SystemInfo: React.FC = () => {
       ))}
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Anasayfa</h1>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <ActivityIcon className="h-4 w-4" />
           <span>Son güncelleme: {new Date().toLocaleTimeString('tr-TR')}</span>
