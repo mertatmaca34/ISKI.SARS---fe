@@ -7,7 +7,8 @@ import {
   Shield,
   Key,
   UserCog,
-  Archive
+  Archive,
+  Tags
 } from 'lucide-react';
 import { authStore } from '../../store/authStore';
 
