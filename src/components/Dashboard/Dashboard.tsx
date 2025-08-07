@@ -14,7 +14,7 @@ export const Dashboard: React.FC = () => {
       <div className="border-b mb-4">
         <nav className="flex space-x-4" aria-label="Tabs">
           <button className={tabClass('trend')} onClick={() => setTab('trend')}>
-            Trend Dashboard
+            Trend
           </button>
           <button className={tabClass('system')} onClick={() => setTab('system')}>
             Sistem Bilgileri

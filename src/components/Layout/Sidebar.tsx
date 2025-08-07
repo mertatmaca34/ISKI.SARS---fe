@@ -22,9 +22,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, roles: ['admin', 'operator'] },
+    { id: 'dashboard', label: 'Anasayfa', icon: BarChart3, roles: ['admin', 'operator'] },
     { id: 'templates', label: 'Rapor Şablonları', icon: FileText, roles: ['admin', 'operator'] },
-    { id: 'archive-tags', label: 'Arşivlenecek Taglar', icon: Archive, roles: ['admin', 'operator'] },
+    { id: 'archive-tags', label: 'Arşivlenecek Etiketler', icon: Archive, roles: ['admin', 'operator'] },
     { id: 'tags', label: 'Etiketler', icon: Tags, roles: ['admin', 'operator'] },
     { id: 'operationclaims', label: 'Yetkiler', icon: Key, roles: ['admin'] },
     { id: 'useroperationclaims', label: 'Kullanıcı Yetkileri', icon: UserCog, roles: ['admin'] },
