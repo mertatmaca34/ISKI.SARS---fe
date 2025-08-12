@@ -75,9 +75,9 @@ export const SystemInfo: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {badMetrics.map((m) => (
+      {badMetrics.map((m, idx) => (
         <div
-          key={m.id}
+          key={`${m.id}-${idx}`}
           className="bg-red-100 text-red-800 px-4 py-2 rounded"
         >
           ❗ {getBannerMessage(m)}
