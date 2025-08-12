@@ -28,8 +28,22 @@ export const SystemInfo: React.FC = () => {
 
   const normalizeStatus = (status: string) => {
     const s = status.toLowerCase();
-    if (['bad', 'critical', 'error', 'failed', 'disconnected'].includes(s)) return 'bad';
-    if (['warning', 'degraded'].includes(s)) return 'warning';
+    if (
+      [
+        'bad',
+        'critical',
+        'error',
+        'failed',
+        'disconnected',
+        'bağlı değil',
+        'bagli degil',
+        'kötü',
+        'kotu',
+        'offline',
+      ].includes(s)
+    )
+      return 'bad';
+    if (['warning', 'degraded', 'uyarı', 'uyari'].includes(s)) return 'warning';
     return 'good';
   };
 

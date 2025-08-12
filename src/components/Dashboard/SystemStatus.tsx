@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle, AlertCircle, XCircle } from 'lucide-react';
-import { SystemMetric } from '../../types';
+import { SystemMetric } from '../../services';
 
 interface SystemStatusProps {
   metrics: SystemMetric[];
@@ -9,8 +9,22 @@ interface SystemStatusProps {
 export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
   const normalizeStatus = (status: string) => {
     const s = status.toLowerCase();
-    if (['bad', 'critical', 'error', 'failed', 'disconnected'].includes(s)) return 'bad';
-    if (['warning', 'degraded'].includes(s)) return 'warning';
+    if (
+      [
+        'bad',
+        'critical',
+        'error',
+        'failed',
+        'disconnected',
+        'bağlı değil',
+        'bagli degil',
+        'kötü',
+        'kotu',
+        'offline',
+      ].includes(s)
+    )
+      return 'bad';
+    if (['warning', 'degraded', 'uyarı', 'uyari'].includes(s)) return 'warning';
     return 'good';
   };
 
@@ -59,6 +73,9 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
   const formatValue = (metric: SystemMetric) => {
     if (metric.value === 1) {
       return 'Bağlı';
+    }
+    if (metric.value === 0 && !metric.unit) {
+      return 'Bağlı Değil';
     }
     return `${metric.value} ${metric.unit}`.trim();
   };

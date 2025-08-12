@@ -42,7 +42,7 @@ export interface SystemMetric {
   name: string;
   value: number;
   unit: string;
-  status: 'healthy' | 'warning' | 'critical';
+  status: string;
   lastUpdated: string;
 }
 
