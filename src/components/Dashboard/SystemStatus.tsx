@@ -87,7 +87,7 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
       <div className="space-y-4">
         {metrics.map((metric, idx) => (
           <div
-            key={`${metric.id}-${idx}`}
+            key={metric.id ?? idx}
             className={`p-4 rounded-lg border ${getStatusColor(metric.status)}`}
           >
             <div className="flex items-center justify-between">
