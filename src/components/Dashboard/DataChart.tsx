@@ -23,8 +23,16 @@ export const DataChart: React.FC = () => {
 
     const query: DynamicQuery = {
       filters: [
-        { field: 'timestamp', operator: 'gte', value: start.toISOString() },
-        { field: 'timestamp', operator: 'lte', value: end.toISOString() },
+        {
+          field: 'timestamp',
+          operator: 'GreaterThanOrEqual',
+          value: start.toISOString(),
+        },
+        {
+          field: 'timestamp',
+          operator: 'LessThanOrEqual',
+          value: end.toISOString(),
+        },
       ],
       sorts: [{ field: 'timestamp', direction: 'asc' }],
     };
