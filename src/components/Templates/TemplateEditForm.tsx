@@ -10,7 +10,6 @@ interface TemplateEditFormProps {
 
 export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSuccess, onCancel }) => {
   const [name, setName] = useState('');
-  const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -18,7 +17,6 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
   useEffect(() => {
     templateService.getById(id).then((res) => {
       setName(res.name);
-      setIsActive(!!res.isActive);
     });
   }, [id]);
 
@@ -27,7 +25,7 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
     setError('');
     setIsLoading(true);
     try {
-      await templateService.update({ id, name, isActive });
+      await templateService.update({ id, name, sharedUserIds: [] });
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -52,16 +50,6 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-        </div>
-        <div className="flex items-center space-x-2">
-          <input
-            id="isActive"
-            type="checkbox"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Aktif</label>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex space-x-2 pt-2">

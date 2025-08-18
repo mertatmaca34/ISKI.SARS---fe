@@ -4,7 +4,10 @@ import {
   archiveTagService,
   tagService,
   ArchiveTagDto,
+  userService,
+  UserDto,
 } from '../../services';
+import { authStore } from '../../store/authStore';
 
 interface TemplateCreateFormProps {
   onSuccess: () => void;
@@ -13,17 +16,23 @@ interface TemplateCreateFormProps {
 
 export const TemplateCreateForm: React.FC<TemplateCreateFormProps> = ({ onSuccess, onCancel }) => {
   const [name, setName] = useState('');
-  const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [available, setAvailable] = useState<ArchiveTagDto[]>([]);
   const [selected, setSelected] = useState<Record<number, ArchiveTagDto>>({});
+  const [users, setUsers] = useState<UserDto[]>([]);
+  const [shared, setShared] = useState<Record<string, UserDto>>({});
 
   useEffect(() => {
     archiveTagService
       .list({ index: 0, size: 200 })
       .then((res) => setAvailable(res.items))
       .catch(() => setAvailable([]));
+
+    userService
+      .list({ index: 0, size: 200 })
+      .then((res) => setUsers(res.items))
+      .catch(() => setUsers([]));
   }, []);
 
   const toggleSelect = (tag: ArchiveTagDto) => {
@@ -38,12 +47,30 @@ export const TemplateCreateForm: React.FC<TemplateCreateFormProps> = ({ onSucces
     });
   };
 
+  const toggleUser = (user: UserDto) => {
+    setShared((prev) => {
+      const copy = { ...prev };
+      if (copy[user.id]) {
+        delete copy[user.id];
+      } else {
+        copy[user.id] = user;
+      }
+      return copy;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     try {
-      const template = await templateService.create({ name, isActive });
+      const currentUser = authStore.getCurrentUser();
+      if (!currentUser) throw new Error('Kullanıcı oturum açmamış');
+      const template = await templateService.create({
+        name,
+        createdByUserId: currentUser.id,
+        sharedUserIds: Object.keys(shared),
+      });
       for (const tag of Object.values(selected)) {
         await tagService.create({
           reportTemplateId: template.id,
@@ -74,15 +101,36 @@ export const TemplateCreateForm: React.FC<TemplateCreateFormProps> = ({ onSucces
             required
           />
         </div>
-        <div className="flex items-center space-x-2">
-          <input
-            id="isActive"
-            type="checkbox"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Aktif</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Paylaşılan Kullanıcılar</label>
+          <div className="max-h-40 overflow-auto border border-gray-200 rounded">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2" />
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ad Soyad</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-posta</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={!!shared[user.id]}
+                        onChange={() => toggleUser(user)}
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900">
+                      {user.firstName} {user.lastName}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{user.email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Taglar</label>
