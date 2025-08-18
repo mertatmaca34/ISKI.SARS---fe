@@ -3,7 +3,20 @@ import { api } from './api';
 export interface ReportTemplateDto {
   id: number;
   name: string;
-  isActive?: boolean;
+  createdByUserId: string;
+  isShared: boolean;
+}
+
+export interface ReportTemplateCreateDto {
+  name: string;
+  createdByUserId: string;
+  sharedUserIds: string[];
+}
+
+export interface ReportTemplateUpdateDto {
+  id: number;
+  name: string;
+  sharedUserIds: string[];
 }
 
 export interface PageRequest {
@@ -28,15 +41,13 @@ export interface PaginatedResponse<T> {
 
 export const templateService = {
   getById: (id: number) => api.get<ReportTemplateDto>(`/api/reporttemplates/${id}`),
-  create: (data: Omit<ReportTemplateDto, 'id'>) =>
+  create: (data: ReportTemplateCreateDto) =>
     api.post<ReportTemplateDto>('/api/reporttemplates', data),
-  update: (data: ReportTemplateDto) =>
+  update: (data: ReportTemplateUpdateDto) =>
     api.put<ReportTemplateDto>('/api/reporttemplates', data),
   delete: (id: number) => api.delete<unknown>(`/api/reporttemplates/${id}`),
   deleteReportTemplateAsync: (id: number) =>
     api.delete<unknown>(`/api/ReportTemplates/${id}`),
-  updateStatus: (id: number, status: boolean) =>
-    api.put<unknown>(`/api/ReportTemplates/${id}/status`, status),
   list: (_page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ReportTemplateDto>>(
       '/api/ReportTemplates/list',

@@ -12,9 +12,9 @@ export interface ReportTemplate {
   id: string;
   name: string;
   description: string;
-  createdBy: string;
+  createdByUserId: string;
   createdAt: string;
-  isActive: boolean;
+  isShared: boolean;
   tags: ReportTemplateTag[];
 }
 

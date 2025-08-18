@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Power, Search, RefreshCcw } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, RefreshCcw } from 'lucide-react';
 import {
   templateService,
   tagService,
@@ -7,7 +7,6 @@ import {
 } from '../../services';
 import { templateController } from '../../controllers/templateController';
 import { ConfirmToast } from '../ConfirmToast';
-import { SimpleToast } from '../SimpleToast';
 import { TemplateCreateForm } from './TemplateCreateForm';
 
 export const TemplateList: React.FC = () => {
@@ -16,8 +15,6 @@ export const TemplateList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
 
   const loadData = () => {
     templateService
@@ -42,26 +39,6 @@ export const TemplateList: React.FC = () => {
   const filteredTemplates = templates.filter((template) =>
     template.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleToggleActive = async (id: number) => {
-    const template = templates.find((t) => t.id === id);
-    if (!template) return;
-    const newStatus = !template.isActive;
-    try {
-      await templateService.updateStatus(id, newStatus);
-      setTemplates((current) =>
-        current.map((t) => (t.id === id ? { ...t, isActive: newStatus } : t))
-      );
-      setToastMessage(
-        newStatus
-          ? 'Şablon aktif hale getirildi.'
-          : 'Şablon pasif hale getirildi.'
-      );
-      setShowToast(true);
-    } catch {
-      // ignore error for now
-    }
-  };
 
   const handleRefresh = () => {
     loadData();
@@ -148,22 +125,12 @@ export const TemplateList: React.FC = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleToggleActive(template.id)}
-                  className={`p-2 rounded-md ${
-                    template.isActive 
-                      ? 'text-green-600 hover:bg-green-50' 
-                      : 'text-gray-400 hover:bg-gray-50'
-                  }`}
-                >
-                  <Power className="h-4 w-4" />
-                </button>
-                <button
                   onClick={() => handleEdit(template.id)}
                   className="p-2 rounded-md text-gray-600 hover:bg-gray-50"
                 >
                   <Edit2 className="h-4 w-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => handleDelete(template.id)}
                   className="p-2 rounded-md text-red-600 hover:bg-red-50"
                 >
@@ -178,13 +145,19 @@ export const TemplateList: React.FC = () => {
                 <span>{tags[template.id] || 0}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Durum:</span>
-                <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                  template.isActive
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {template.isActive ? 'Aktif' : 'Pasif'}
+                <span className="text-gray-600">Oluşturan:</span>
+                <span className="text-gray-900 truncate max-w-[8rem]" title={template.createdByUserId}>{template.createdByUserId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Paylaşıldı:</span>
+                <span
+                  className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                    template.isShared
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  {template.isShared ? 'Evet' : 'Hayır'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -213,11 +186,6 @@ export const TemplateList: React.FC = () => {
         message="Bu şablonu silmek istediğinize emin misiniz?"
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
-      />
-      <SimpleToast
-        message={toastMessage}
-        open={showToast}
-        onClose={() => setShowToast(false)}
       />
     </div>
   );

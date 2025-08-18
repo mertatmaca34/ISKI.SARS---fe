@@ -21,6 +21,8 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   const [tags, setTags] = useState<ReportTemplateTagDto[]>([]);
   const [available, setAvailable] = useState<ArchiveTagDto[]>([]);
   const [templateName, setTemplateName] = useState('');
+  const [createdBy, setCreatedBy] = useState('');
+  const [isShared, setIsShared] = useState(false);
   const [selected, setSelected] = useState<Record<number, ArchiveTagDto>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -43,8 +45,16 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   useEffect(() => {
     templateService
       .getById(templateId)
-      .then((res) => setTemplateName(res.name))
-      .catch(() => setTemplateName(''));
+      .then((res) => {
+        setTemplateName(res.name);
+        setCreatedBy(res.createdByUserId);
+        setIsShared(res.isShared);
+      })
+      .catch(() => {
+        setTemplateName('');
+        setCreatedBy('');
+        setIsShared(false);
+      });
     loadTags();
     loadAvailable();
   }, [templateId, loadTags, loadAvailable]);
@@ -95,6 +105,14 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
         >
           Geri
         </button>
+      </div>
+      <div className="space-y-1 text-sm">
+        <div className="flex space-x-4">
+          <span className="text-gray-600">Oluşturan: {createdBy}</span>
+          <span className="text-gray-600">
+            Paylaşıldı: {isShared ? 'Evet' : 'Hayır'}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
