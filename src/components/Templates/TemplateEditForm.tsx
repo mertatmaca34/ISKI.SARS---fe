@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { templateService } from '../../services';
-import { SimpleToast } from '../SimpleToast';
 import { authStore } from '../../store/authStore';
 
 interface TemplateEditFormProps {
@@ -13,7 +12,6 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -35,11 +33,7 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
     setIsLoading(true);
     try {
       await templateService.update({ id, name, sharedUserIds: [] });
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-        onSuccess();
-      }, 3000);
+      onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Hata oluştu');
       setIsLoading(false);
@@ -98,7 +92,6 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
           </button>
         </div>
       </form>
-      <SimpleToast message="Şablon başarıyla güncellendi." open={showToast} onClose={() => { setShowToast(false); onSuccess(); }} />
     </div>
   );
 };
