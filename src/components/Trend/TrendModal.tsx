@@ -20,7 +20,7 @@ export const TrendModal: React.FC<TrendModalProps> = ({ tag, onClose }) => {
     return d.toISOString().slice(0, 16);
   });
   const [points, setPoints] = useState<TrendPoint[]>([]);
-  const [realtime, setRealtime] = useState(false);
+    const [realtime, setRealtime] = useState(false);
 
   const loadData = useCallback(() => {
     trendService
@@ -34,16 +34,16 @@ export const TrendModal: React.FC<TrendModalProps> = ({ tag, onClose }) => {
   }, [loadData]);
 
   useEffect(() => {
-    if (!realtime) return;
-    const interval = setInterval(() => {
-      const now = new Date();
-      const s = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      setStart(s.toISOString().slice(0, 16));
-      setEnd(now.toISOString().slice(0, 16));
-      loadData();
-    }, tag.pullInterval * 1000);
-    return () => clearInterval(interval);
-  }, [realtime, tag, loadData]);
+      if (!realtime) return;
+      const interval = setInterval(() => {
+        const now = new Date();
+        const s = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        setStart(s.toISOString().slice(0, 16));
+        setEnd(now.toISOString().slice(0, 16));
+        loadData();
+      }, 5000);
+      return () => clearInterval(interval);
+    }, [realtime, tag, loadData]);
 
   const max = points.length ? Math.max(...points.map((p) => p.value)) : 0;
   const min = points.length ? Math.min(...points.map((p) => p.value)) : 0;
@@ -83,10 +83,11 @@ export const TrendModal: React.FC<TrendModalProps> = ({ tag, onClose }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-          <div><span className="font-medium">Node Id:</span> {tag.tagNodeId}</div>
-          <div><span className="font-medium">Açıklama:</span> {tag.description ?? '-'}</div>
-          <div><span className="font-medium">Kayıt Aralığı:</span> {tag.pullInterval}s</div>
-        </div>
+            <div><span className="font-medium">Node Id:</span> {tag.tagNodeId}</div>
+            <div><span className="font-medium">Açıklama:</span> {tag.description ?? '-'}</div>
+            <div><span className="font-medium">Tip:</span> {tag.type}</div>
+            <div><span className="font-medium">Durum:</span> {tag.isActive ? 'Aktif' : 'Pasif'}</div>
+          </div>
 
         <div className="flex space-x-2 items-end mb-4">
           <div>

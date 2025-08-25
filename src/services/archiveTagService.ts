@@ -5,8 +5,9 @@ export interface ArchiveTagDto {
   id: number;
   tagName: string;
   tagNodeId: string;
-  pullInterval: number;
   description?: string;
+  type: number;
+  isActive: boolean;
 }
 
 export const archiveTagService = {
