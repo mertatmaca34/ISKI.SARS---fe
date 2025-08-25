@@ -16,6 +16,7 @@ export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
   const [tags, setTags] = useState<Record<string, number>>({});
   const [users, setUsers] = useState<Record<string, UserDto>>({});
+  const [shares, setShares] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -25,12 +26,35 @@ export const TemplateList: React.FC = () => {
     const currentUser = authStore.getCurrentUser();
     if (!currentUser) {
       setTemplates([]);
+      setShares({});
       return;
     }
     templateService
       .list({ index: 0, size: 50 }, currentUser.id)
-      .then((res) => setTemplates(res.items))
-      .catch(() => setTemplates([]));
+      .then((res) => {
+        setTemplates(res.items);
+        Promise.all(
+          res.items.map((t) =>
+            templateService
+              .getById(t.id, currentUser.id)
+              .then(
+                (r) =>
+                  ((r as { sharedUserIds?: string[] }).sharedUserIds?.length ?? 0)
+              )
+              .catch(() => 0)
+          )
+        ).then((counts) => {
+          const map: Record<string, number> = {};
+          res.items.forEach((t, i) => {
+            map[t.id] = counts[i];
+          });
+          setShares(map);
+        });
+      })
+      .catch(() => {
+        setTemplates([]);
+        setShares({});
+      });
     tagService
       .list({ index: 0, size: 100 })
       .then((res) => {
@@ -193,12 +217,15 @@ export const TemplateList: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Paylaşıldı:</span>
-                <button
-                  onClick={() => handleManageShare(template.id)}
-                  className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
-                >
-                  Yönet
-                </button>
+                <div className="flex items-center space-x-2">
+                  <span>{shares[template.id] || 0}</span>
+                  <button
+                    onClick={() => handleManageShare(template.id)}
+                    className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
+                  >
+                    Yönet
+                  </button>
+                </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Taglar:</span>
