@@ -22,6 +22,8 @@ export const ArchiveTagList: React.FC = () => {
   const [trendTag, setTrendTag] = useState<ArchiveTagDto | null>(null);
   const [editTag, setEditTag] = useState<ArchiveTagDto | null>(null);
   const [isTreeLoading, setIsTreeLoading] = useState(false);
+  const [showIntervalSelect, setShowIntervalSelect] = useState(false);
+  const [interval, setInterval] = useState(intervalOptions[0].value);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
 
   const loadTags = () =>
@@ -108,13 +110,13 @@ export const ArchiveTagList: React.FC = () => {
     );
   };
 
-  const saveSelected = async () => {
+  const saveSelected = async (chosenInterval: number) => {
     const nodes = Object.values(selected);
     for (const node of nodes) {
       await archiveTagService.create({
         tagName: node.displayName,
         tagNodeId: node.nodeId,
-        type: intervalOptions[0].value,
+        type: chosenInterval,
         isActive: true,
       });
     }
@@ -261,27 +263,25 @@ export const ArchiveTagList: React.FC = () => {
                 X
               </button>
             </div>
-            <div className="flex justify-end items-center p-4 border-b space-x-4">
-              <div className="space-x-2">
-                <button
-                  onClick={fetchTree}
-                  disabled={isTreeLoading}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
-                >
-                  {isTreeLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Opc Taglarını Getir'
-                  )}
-                </button>
-                <button
-                  onClick={saveSelected}
-                  disabled={Object.keys(selected).length === 0}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                >
-                  Kaydet
-                </button>
-              </div>
+            <div className="flex justify-end items-center p-4 border-b space-x-2">
+              <button
+                onClick={fetchTree}
+                disabled={isTreeLoading}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+              >
+                {isTreeLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Tagları Getir'
+                )}
+              </button>
+              <button
+                onClick={() => setShowIntervalSelect(true)}
+                disabled={Object.keys(selected).length === 0}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                Kaydet
+              </button>
             </div>
             <div className="flex-1 overflow-auto p-4">
               {isTreeLoading ? (
@@ -293,6 +293,52 @@ export const ArchiveTagList: React.FC = () => {
               ) : (
                 <p className="text-center text-sm text-gray-500">Veri yok</p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showIntervalSelect && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-sm p-4 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <h2 className="text-lg font-semibold">Çekim Aralığı Seç</h2>
+              <button
+                onClick={() => setShowIntervalSelect(false)}
+                className="text-gray-500"
+              >
+                X
+              </button>
+            </div>
+            <div>
+              <select
+                value={interval}
+                onChange={(e) => setInterval(Number(e.target.value))}
+                className="w-full border rounded-md p-2"
+              >
+                {intervalOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end space-x-2 pt-2 border-t">
+              <button
+                onClick={() => setShowIntervalSelect(false)}
+                className="px-4 py-2 border rounded-md"
+              >
+                İptal
+              </button>
+              <button
+                onClick={async () => {
+                  await saveSelected(interval);
+                  setShowIntervalSelect(false);
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md"
+              >
+                Kaydet
+              </button>
             </div>
           </div>
         </div>
