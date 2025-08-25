@@ -5,6 +5,7 @@ export interface ReportTemplateDto {
   name: string;
   createdByUserId: string;
   isShared: boolean;
+  sharedUserIds: string[];
 }
 
 export interface ReportTemplateCreateDto {
