@@ -4,6 +4,8 @@ import {
   templateService,
   tagService,
   ReportTemplateDto,
+  userService,
+  UserDto,
 } from '../../services';
 import { templateController } from '../../controllers/templateController';
 import { ConfirmToast } from '../ConfirmToast';
@@ -13,6 +15,7 @@ import { authStore } from '../../store/authStore';
 export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
   const [tags, setTags] = useState<Record<string, number>>({});
+  const [users, setUsers] = useState<Record<string, UserDto>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -36,6 +39,17 @@ export const TemplateList: React.FC = () => {
         });
         setTags(grouped);
       });
+
+    userService
+      .list({ index: 0, size: 200 })
+      .then((res) => {
+        const map: Record<string, UserDto> = {};
+        res.items.forEach((u) => {
+          map[u.id] = u;
+        });
+        setUsers(map);
+      })
+      .catch(() => setUsers({}));
   };
 
   useEffect(() => {
@@ -152,7 +166,18 @@ export const TemplateList: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Oluşturan:</span>
-                <span className="text-gray-900 truncate max-w-[8rem]" title={template.createdByUserId}>{template.createdByUserId}</span>
+                <span
+                  className="text-gray-900 truncate max-w-[8rem]"
+                  title={
+                    users[template.createdByUserId]
+                      ? `${users[template.createdByUserId].firstName} ${users[template.createdByUserId].lastName}`
+                      : template.createdByUserId
+                  }
+                >
+                  {users[template.createdByUserId]
+                    ? `${users[template.createdByUserId].firstName} ${users[template.createdByUserId].lastName}`
+                    : template.createdByUserId}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Paylaşıldı:</span>
