@@ -19,6 +19,7 @@ export const TemplateList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const currentUser = authStore.getCurrentUser();
 
   const loadData = () => {
     const currentUser = authStore.getCurrentUser();
@@ -65,6 +66,8 @@ export const TemplateList: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
+    const template = templates.find((t) => t.id === id);
+    if (template && template.createdByUserId !== currentUser?.id) return;
     setDeleteId(id);
   };
 
@@ -76,6 +79,8 @@ export const TemplateList: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
+    const template = templates.find((t) => t.id === id);
+    if (template && template.createdByUserId !== currentUser?.id) return;
     window.history.pushState({}, '', `/Templates/Edit/${id}`);
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
@@ -148,20 +153,22 @@ export const TemplateList: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
                 {/* description not provided by API */}
               </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleEdit(template.id)}
-                  className="p-2 rounded-md text-gray-600 hover:bg-gray-50"
-                >
-                  <Edit2 className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(template.id)}
-                  className="p-2 rounded-md text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+              {template.createdByUserId === currentUser?.id && (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEdit(template.id)}
+                    className="p-2 rounded-md text-gray-600 hover:bg-gray-50"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(template.id)}
+                    className="p-2 rounded-md text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2 text-sm">

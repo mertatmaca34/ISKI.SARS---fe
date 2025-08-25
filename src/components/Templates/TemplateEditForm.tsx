@@ -14,12 +14,18 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
     const currentUser = authStore.getCurrentUser();
     if (!currentUser) return;
     templateService.getById(id, currentUser.id).then((res) => {
-      setName(res.name);
+      if (res.createdByUserId !== currentUser.id) {
+        setHasPermission(false);
+      } else {
+        setName(res.name);
+        setHasPermission(true);
+      }
     });
   }, [id]);
 
@@ -39,6 +45,26 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
       setIsLoading(false);
     }
   };
+
+  if (hasPermission === false) {
+    return (
+      <div className="space-y-6 px-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Şablonu Düzenle</h1>
+        <p className="text-sm text-red-600">Bu şablonu düzenleme yetkiniz yok.</p>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+        >
+          Geri Dön
+        </button>
+      </div>
+    );
+  }
+
+  if (hasPermission === null) {
+    return null;
+  }
 
   return (
     <div className="space-y-6 px-2">
