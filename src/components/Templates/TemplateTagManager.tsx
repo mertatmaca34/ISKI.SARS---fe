@@ -8,6 +8,7 @@ import {
   ArchiveTagDto,
 } from '../../services';
 import { ConfirmToast } from '../ConfirmToast';
+import { authStore } from '../../store/authStore';
 
 interface TemplateTagManagerProps {
   templateId: number;
@@ -43,18 +44,21 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   }, []);
 
   useEffect(() => {
-    templateService
-      .getById(templateId)
-      .then((res) => {
-        setTemplateName(res.name);
-        setCreatedBy(res.createdByUserId);
-        setIsShared(res.isShared);
-      })
-      .catch(() => {
-        setTemplateName('');
-        setCreatedBy('');
-        setIsShared(false);
-      });
+    const currentUser = authStore.getCurrentUser();
+    if (currentUser) {
+      templateService
+        .getById(templateId, currentUser.id)
+        .then((res) => {
+          setTemplateName(res.name);
+          setCreatedBy(res.createdByUserId);
+          setIsShared(res.isShared);
+        })
+        .catch(() => {
+          setTemplateName('');
+          setCreatedBy('');
+          setIsShared(false);
+        });
+    }
     loadTags();
     loadAvailable();
   }, [templateId, loadTags, loadAvailable]);

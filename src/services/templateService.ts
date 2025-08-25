@@ -40,17 +40,16 @@ export interface PaginatedResponse<T> {
 }
 
 export const templateService = {
-  getById: (id: number) => api.get<ReportTemplateDto>(`/api/reporttemplates/${id}`),
+  getById: (id: number, userId: string) =>
+    api.get<ReportTemplateDto>(`/api/ReportTemplates/${id}?userId=${userId}`),
   create: (data: ReportTemplateCreateDto) =>
-    api.post<ReportTemplateDto>('/api/reporttemplates', data),
+    api.post<ReportTemplateDto>('/api/ReportTemplates', data),
   update: (data: ReportTemplateUpdateDto) =>
-    api.put<ReportTemplateDto>('/api/reporttemplates', data),
-  delete: (id: number) => api.delete<unknown>(`/api/reporttemplates/${id}`),
-  deleteReportTemplateAsync: (id: number) =>
-    api.delete<unknown>(`/api/ReportTemplates/${id}`),
-  list: (_page: PageRequest, query?: DynamicQuery) =>
+    api.put<ReportTemplateDto>('/api/ReportTemplates', data),
+  delete: (id: number) => api.delete<unknown>(`/api/ReportTemplates/${id}`),
+  list: (page: PageRequest, userId: string, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ReportTemplateDto>>(
-      '/api/ReportTemplates/list',
+      `/api/ReportTemplates/list?PageNumber=${page.index + 1}&PageSize=${page.size}&userId=${userId}`,
       query ?? { filters: [], sorts: [] }
     ),
 };

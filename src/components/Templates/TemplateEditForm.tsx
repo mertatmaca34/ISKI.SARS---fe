@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { templateService } from '../../services';
 import { SimpleToast } from '../SimpleToast';
+import { authStore } from '../../store/authStore';
 
 interface TemplateEditFormProps {
   id: number;
@@ -15,7 +16,9 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    templateService.getById(id).then((res) => {
+    const currentUser = authStore.getCurrentUser();
+    if (!currentUser) return;
+    templateService.getById(id, currentUser.id).then((res) => {
       setName(res.name);
     });
   }, [id]);
