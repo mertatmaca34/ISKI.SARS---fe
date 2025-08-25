@@ -11,7 +11,6 @@ export interface ReportTemplateDto {
 export interface ReportTemplateCreateDto {
   name: string;
   createdByUserId: string;
-  sharedUserIds: string[];
 }
 
 export interface ReportTemplateUpdateDto {
