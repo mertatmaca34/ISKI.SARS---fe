@@ -177,14 +177,9 @@ export const ArchiveTagList: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   {isAdmin && (
-                    <>
-                      <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Düzenle
-                      </th>
-                      <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Sil
-                      </th>
-                    </>
+                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      İşlemler
+                    </th>
                   )}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Etiket Adı
@@ -205,8 +200,8 @@ export const ArchiveTagList: React.FC = () => {
                   onClick={() => setTrendTag(tag)}
                 >
                   {isAdmin && (
-                    <>
-                      <td className="px-2 py-4 whitespace-nowrap text-sm">
+                    <td className="px-2 py-4 whitespace-nowrap text-sm">
+                      <div className="flex items-center space-x-2">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -216,8 +211,6 @@ export const ArchiveTagList: React.FC = () => {
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
-                      </td>
-                      <td className="px-2 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -227,8 +220,8 @@ export const ArchiveTagList: React.FC = () => {
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
-                      </td>
-                    </>
+                      </div>
+                    </td>
                   )}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {tag.tagName}
