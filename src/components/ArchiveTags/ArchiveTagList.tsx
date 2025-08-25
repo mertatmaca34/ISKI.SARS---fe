@@ -17,13 +17,11 @@ export const ArchiveTagList: React.FC = () => {
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [selected, setSelected] = useState<Record<string, TreeNode>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [interval, setInterval] = useState(10);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [trendTag, setTrendTag] = useState<ArchiveTagDto | null>(null);
   const [editTag, setEditTag] = useState<ArchiveTagDto | null>(null);
   const [isTreeLoading, setIsTreeLoading] = useState(false);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
-  const intervals = [1, 5, 10, 20, 30, 60, 300, 600, 3600, 86400];
 
   const loadTags = () =>
     archiveTagService
@@ -115,7 +113,8 @@ export const ArchiveTagList: React.FC = () => {
       await archiveTagService.create({
         tagName: node.displayName,
         tagNodeId: node.nodeId,
-        pullInterval: interval,
+        type: 0,
+        isActive: true,
       });
     }
     setSelected({});
@@ -194,7 +193,10 @@ export const ArchiveTagList: React.FC = () => {
                   Açıklama
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Çekim Aralığı
+                  Tip
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Aktif
                 </th>
               </tr>
             </thead>
@@ -238,7 +240,10 @@ export const ArchiveTagList: React.FC = () => {
                     {tag.description || ''}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {tag.pullInterval}
+                    {tag.type}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {tag.isActive ? 'Aktif' : 'Pasif'}
                   </td>
                 </tr>
               ))}
@@ -268,21 +273,7 @@ export const ArchiveTagList: React.FC = () => {
                 X
               </button>
             </div>
-            <div className="flex justify-between items-center p-4 border-b space-x-4">
-              <div className="flex items-center space-x-2">
-                <label className="text-sm">Çekim Süresi</label>
-                <select
-                  value={interval}
-                  onChange={(e) => setInterval(Number(e.target.value))}
-                  className="border rounded-md p-1"
-                >
-                  {intervals.map((i) => (
-                    <option key={i} value={i}>
-                      {i}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="flex justify-end items-center p-4 border-b space-x-4">
               <div className="space-x-2">
                 <button
                   onClick={fetchTree}
@@ -353,17 +344,24 @@ export const ArchiveTagList: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm">Çekim Aralığı</label>
+                <label className="block text-sm">Tip</label>
                 <input
                   type="number"
-                  value={editTag.pullInterval}
+                  value={editTag.type}
                   onChange={(e) =>
-                    setEditTag({
-                      ...editTag!,
-                      pullInterval: Number(e.target.value),
-                    })
+                    setEditTag({ ...editTag!, type: Number(e.target.value) })
                   }
                   className="mt-1 w-full border rounded-md p-2"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <label className="text-sm">Aktif</label>
+                <input
+                  type="checkbox"
+                  checked={editTag.isActive}
+                  onChange={(e) =>
+                    setEditTag({ ...editTag!, isActive: e.target.checked })
+                  }
                 />
               </div>
             </div>

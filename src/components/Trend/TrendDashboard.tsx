@@ -44,16 +44,16 @@ export const TrendDashboard: React.FC = () => {
   }, [loadData]);
 
   useEffect(() => {
-    if (!realtime || !activeTag) return;
-    const interval = setInterval(() => {
-      const now = new Date();
-      const s = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      setStart(s.toISOString().slice(0, 16));
-      setEnd(now.toISOString().slice(0, 16));
-      loadData();
-    }, activeTag.pullInterval * 1000);
-    return () => clearInterval(interval);
-  }, [realtime, activeTag, loadData]);
+      if (!realtime || !activeTag) return;
+      const interval = setInterval(() => {
+        const now = new Date();
+        const s = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        setStart(s.toISOString().slice(0, 16));
+        setEnd(now.toISOString().slice(0, 16));
+        loadData();
+      }, 5000);
+      return () => clearInterval(interval);
+    }, [realtime, activeTag, loadData]);
 
   const handleAddTag = () => {
     if (tagToAdd === '' || selectedIds.includes(tagToAdd as number)) return;
