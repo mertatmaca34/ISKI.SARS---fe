@@ -7,8 +7,7 @@ import {
   Shield,
   Key,
   UserCog,
-  Archive,
-  Tags
+  Archive
 } from 'lucide-react';
 import { authStore } from '../../store/authStore';
 
@@ -25,7 +24,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'dashboard', label: 'Anasayfa', icon: BarChart3, roles: ['admin', 'operator'] },
     { id: 'templates', label: 'Rapor Şablonları', icon: FileText, roles: ['admin', 'operator'] },
     { id: 'archive-tags', label: 'Arşivlenecek Etiketler', icon: Archive, roles: ['admin', 'operator'] },
-    { id: 'tags', label: 'Etiketler', icon: Tags, roles: ['admin', 'operator'] },
     { id: 'operationclaims', label: 'Yetkiler', icon: Key, roles: ['admin'] },
     { id: 'useroperationclaims', label: 'Kullanıcı Yetkileri', icon: UserCog, roles: ['admin'] },
     { id: 'users', label: 'Kullanıcı Yönetimi', icon: Users, roles: ['admin'] },
