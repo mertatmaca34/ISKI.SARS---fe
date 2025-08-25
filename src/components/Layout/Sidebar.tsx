@@ -23,7 +23,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Anasayfa', icon: BarChart3, roles: ['admin', 'operator'] },
     { id: 'templates', label: 'Rapor Şablonları', icon: FileText, roles: ['admin', 'operator'] },
-    { id: 'archive-tags', label: 'Arşivlenecek Etiketler', icon: Archive, roles: ['admin', 'operator'] },
+    { id: 'archive-tags', label: 'Tag Arşivi', icon: Archive, roles: ['admin', 'operator'] },
     { id: 'operationclaims', label: 'Yetkiler', icon: Key, roles: ['admin'] },
     { id: 'useroperationclaims', label: 'Kullanıcı Yetkileri', icon: UserCog, roles: ['admin'] },
     { id: 'users', label: 'Kullanıcı Yönetimi', icon: Users, roles: ['admin'] },

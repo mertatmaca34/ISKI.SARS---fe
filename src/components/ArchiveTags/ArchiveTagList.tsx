@@ -9,6 +9,7 @@ import {
 import { ConfirmToast } from '../ConfirmToast';
 import { authStore } from '../../store/authStore';
 import { TrendModal } from '../Trend/TrendModal';
+import { intervalOptions, formatInterval } from '../../constants/intervalOptions';
 
 export const ArchiveTagList: React.FC = () => {
   const [tags, setTags] = useState<ArchiveTagDto[]>([]);
@@ -113,7 +114,7 @@ export const ArchiveTagList: React.FC = () => {
       await archiveTagService.create({
         tagName: node.displayName,
         tagNodeId: node.nodeId,
-        type: 0,
+        type: intervalOptions[0].value,
         isActive: true,
       });
     }
@@ -230,7 +231,7 @@ export const ArchiveTagList: React.FC = () => {
                     {tag.description || ''}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {tag.type}
+                    {formatInterval(tag.type)}
                   </td>
                 </tr>
               ))}
@@ -332,14 +333,19 @@ export const ArchiveTagList: React.FC = () => {
               </div>
                 <div>
                   <label className="block text-sm">Çekim Aralığı</label>
-                  <input
-                    type="number"
+                  <select
                     value={editTag.type}
                     onChange={(e) =>
                       setEditTag({ ...editTag!, type: Number(e.target.value) })
                     }
                     className="mt-1 w-full border rounded-md p-2"
-                  />
+                  >
+                    {intervalOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               <div className="flex items-center space-x-2">
                 <label className="text-sm">Aktif</label>
