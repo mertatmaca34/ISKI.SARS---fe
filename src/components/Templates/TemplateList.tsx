@@ -8,6 +8,7 @@ import {
 import { templateController } from '../../controllers/templateController';
 import { ConfirmToast } from '../ConfirmToast';
 import { TemplateCreateForm } from './TemplateCreateForm';
+import { authStore } from '../../store/authStore';
 
 export const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<ReportTemplateDto[]>([]);
@@ -17,8 +18,13 @@ export const TemplateList: React.FC = () => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const loadData = () => {
+    const currentUser = authStore.getCurrentUser();
+    if (!currentUser) {
+      setTemplates([]);
+      return;
+    }
     templateService
-      .list({ index: 0, size: 50 })
+      .list({ index: 0, size: 50 }, currentUser.id)
       .then((res) => setTemplates(res.items))
       .catch(() => setTemplates([]));
     tagService
