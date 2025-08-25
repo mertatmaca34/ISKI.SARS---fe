@@ -85,7 +85,7 @@ export const TrendModal: React.FC<TrendModalProps> = ({ tag, onClose }) => {
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
             <div><span className="font-medium">Node Id:</span> {tag.tagNodeId}</div>
             <div><span className="font-medium">Açıklama:</span> {tag.description ?? '-'}</div>
-            <div><span className="font-medium">Tip:</span> {tag.type}</div>
+            <div><span className="font-medium">Çekim Aralığı:</span> {tag.type}</div>
             <div><span className="font-medium">Durum:</span> {tag.isActive ? 'Aktif' : 'Pasif'}</div>
           </div>
 
