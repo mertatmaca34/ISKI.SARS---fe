@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Search, Trash2, Loader2, Pencil } from 'lucide-react';
 import {
   archiveTagService,
   ArchiveTagDto,
@@ -20,6 +20,7 @@ export const ArchiveTagList: React.FC = () => {
   const [interval, setInterval] = useState(10);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [trendTag, setTrendTag] = useState<ArchiveTagDto | null>(null);
+  const [editTag, setEditTag] = useState<ArchiveTagDto | null>(null);
   const [isTreeLoading, setIsTreeLoading] = useState(false);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
   const intervals = [1, 5, 10, 20, 30, 60, 300, 600, 3600, 86400];
@@ -133,6 +134,13 @@ export const ArchiveTagList: React.FC = () => {
     loadTags();
   };
 
+  const saveEdit = async () => {
+    if (!editTag) return;
+    await archiveTagService.update(editTag);
+    setEditTag(null);
+    loadTags();
+  };
+
   return (
     <div className="space-y-6 px-2">
       <div className="flex items-center justify-between">
@@ -169,15 +177,24 @@ export const ArchiveTagList: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {isAdmin && <th className="px-6 py-3" />}
+                {isAdmin && (
+                  <>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Düzenle
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Sil
+                    </th>
+                  </>
+                )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Etiket Adı
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Node ID
+                  Açıklama
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Çekim Aralığı (s)
+                  Çekim Aralığı
                 </th>
               </tr>
             </thead>
@@ -189,23 +206,36 @@ export const ArchiveTagList: React.FC = () => {
                   onClick={() => setTrendTag(tag)}
                 >
                   {isAdmin && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteId(tag.id);
-                        }}
-                        className="p-2 rounded-md text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
+                    <>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditTag({ ...tag });
+                          }}
+                          className="p-2 rounded-md text-blue-600 hover:bg-blue-50"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteId(tag.id);
+                          }}
+                          className="p-2 rounded-md text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </>
                   )}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {tag.tagName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
-                    {tag.tagNodeId}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {tag.description || ''}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {tag.pullInterval}
@@ -284,6 +314,72 @@ export const ArchiveTagList: React.FC = () => {
               ) : (
                 <p className="text-center text-sm text-gray-500">Veri yok</p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editTag && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-4 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <h2 className="text-lg font-semibold">Etiketi Düzenle</h2>
+              <button
+                onClick={() => setEditTag(null)}
+                className="text-gray-500"
+              >
+                X
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm">Etiket Adı</label>
+                <input
+                  type="text"
+                  value={editTag.tagName}
+                  disabled
+                  className="mt-1 w-full border rounded-md p-2 bg-gray-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm">Açıklama</label>
+                <input
+                  type="text"
+                  value={editTag.description || ''}
+                  onChange={(e) =>
+                    setEditTag({ ...editTag!, description: e.target.value })
+                  }
+                  className="mt-1 w-full border rounded-md p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm">Çekim Aralığı</label>
+                <input
+                  type="number"
+                  value={editTag.pullInterval}
+                  onChange={(e) =>
+                    setEditTag({
+                      ...editTag!,
+                      pullInterval: Number(e.target.value),
+                    })
+                  }
+                  className="mt-1 w-full border rounded-md p-2"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2 pt-2 border-t">
+              <button
+                onClick={() => setEditTag(null)}
+                className="px-4 py-2 border rounded-md"
+              >
+                İptal
+              </button>
+              <button
+                onClick={saveEdit}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md"
+              >
+                Kaydet
+              </button>
             </div>
           </div>
         </div>
