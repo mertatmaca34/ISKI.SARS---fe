@@ -174,33 +174,30 @@ export const ArchiveTagList: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-auto h-[calc(100vh-12rem)]">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {isAdmin && (
-                  <>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Düzenle
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sil
-                    </th>
-                  </>
-                )}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Etiket Adı
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Açıklama
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tip
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Aktif
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {isAdmin && (
+                    <>
+                      <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Düzenle
+                      </th>
+                      <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Sil
+                      </th>
+                    </>
+                  )}
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Etiket Adı
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Açıklama
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Çekim Aralığı
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
               {filteredTags.map((tag) => (
                 <tr
                   key={tag.id}
@@ -209,7 +206,7 @@ export const ArchiveTagList: React.FC = () => {
                 >
                   {isAdmin && (
                     <>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-2 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -220,7 +217,7 @@ export const ArchiveTagList: React.FC = () => {
                           <Pencil className="h-4 w-4" />
                         </button>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-2 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -241,9 +238,6 @@ export const ArchiveTagList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {tag.type}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {tag.isActive ? 'Aktif' : 'Pasif'}
                   </td>
                 </tr>
               ))}
@@ -343,17 +337,17 @@ export const ArchiveTagList: React.FC = () => {
                   className="mt-1 w-full border rounded-md p-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm">Tip</label>
-                <input
-                  type="number"
-                  value={editTag.type}
-                  onChange={(e) =>
-                    setEditTag({ ...editTag!, type: Number(e.target.value) })
-                  }
-                  className="mt-1 w-full border rounded-md p-2"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm">Çekim Aralığı</label>
+                  <input
+                    type="number"
+                    value={editTag.type}
+                    onChange={(e) =>
+                      setEditTag({ ...editTag!, type: Number(e.target.value) })
+                    }
+                    className="mt-1 w-full border rounded-md p-2"
+                  />
+                </div>
               <div className="flex items-center space-x-2">
                 <label className="text-sm">Aktif</label>
                 <input

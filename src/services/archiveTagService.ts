@@ -15,7 +15,7 @@ export const archiveTagService = {
   create: (data: Omit<ArchiveTagDto, 'id'>) =>
     api.post<ArchiveTagDto>('/api/archivetags', data),
   update: (data: ArchiveTagDto) =>
-    api.put<ArchiveTagDto>(`/api/archivetags/${data.id}`, data),
+    api.put<ArchiveTagDto>('/api/archivetags', data),
   delete: (id: number) => api.delete<unknown>(`/api/archivetags/${id}`),
   list: (page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ArchiveTagDto>>(
