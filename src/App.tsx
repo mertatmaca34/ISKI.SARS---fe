@@ -11,6 +11,7 @@ import { UserEditForm } from './components/Users/UserEditForm';
 import { LogList } from './components/Logs/LogList';
 import { Settings } from './components/Settings/Settings';
 import { TemplateTagManager } from './components/Templates/TemplateTagManager';
+import { TemplateShareManager } from './components/Templates/TemplateShareManager';
 import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
 import { UserOperationClaimList } from './components/UserOperationClaims/UserOperationClaimList';
 import { UserSettings } from './components/Users/UserSettings';
@@ -118,6 +119,23 @@ function App() {
           <main className="flex-1 p-4">
             <div className="mx-2 max-w-none">
               <TemplateTagManager templateId={id} onBack={() => navigate('/Templates')} />
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (route.startsWith('/Templates/') && route.endsWith('/Share')) {
+    const id = parseInt(route.split('/')[2] || '0', 10);
+    return (
+      <div className="h-screen overflow-hidden bg-gray-50">
+        <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
+        <div className="flex">
+          <Sidebar activeTab="templates" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
+          <main className="flex-1 p-4">
+            <div className="mx-2 max-w-none">
+              <TemplateShareManager templateId={id} onBack={() => navigate('/Templates')} />
             </div>
           </main>
         </div>

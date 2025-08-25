@@ -6,6 +6,7 @@ import {
   archiveTagService,
   ReportTemplateTagDto,
   ArchiveTagDto,
+  userService,
 } from '../../services';
 import { ConfirmToast } from '../ConfirmToast';
 import { authStore } from '../../store/authStore';
@@ -23,7 +24,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   const [available, setAvailable] = useState<ArchiveTagDto[]>([]);
   const [templateName, setTemplateName] = useState('');
   const [createdBy, setCreatedBy] = useState('');
-  const [isShared, setIsShared] = useState(false);
   const [selected, setSelected] = useState<Record<number, ArchiveTagDto>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -50,13 +50,16 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
         .getById(templateId, currentUser.id)
         .then((res) => {
           setTemplateName(res.name);
-          setCreatedBy(res.createdByUserId);
-          setIsShared(res.isShared);
+          userService
+            .getById(res.createdByUserId)
+            .then((u) =>
+              setCreatedBy(`${u.firstName} ${u.lastName}`)
+            )
+            .catch(() => setCreatedBy(res.createdByUserId));
         })
         .catch(() => {
           setTemplateName('');
           setCreatedBy('');
-          setIsShared(false);
         });
     }
     loadTags();
@@ -97,6 +100,11 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
     loadTags();
   };
 
+  const handleManageShare = () => {
+    window.history.pushState({}, '', `/Templates/${templateId}/Share`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
   return (
     <div className="space-y-6 px-2">
       <div className="flex items-center justify-between">
@@ -111,11 +119,14 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
         </button>
       </div>
       <div className="space-y-1 text-sm">
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 items-center">
           <span className="text-gray-600">Oluşturan: {createdBy}</span>
-          <span className="text-gray-600">
-            Paylaşıldı: {isShared ? 'Evet' : 'Hayır'}
-          </span>
+          <button
+            onClick={handleManageShare}
+            className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
+          >
+            Paylaşımı Yönet
+          </button>
         </div>
       </div>
 

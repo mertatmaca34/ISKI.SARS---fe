@@ -85,6 +85,11 @@ export const TemplateList: React.FC = () => {
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
+  const handleManageShare = (id: number) => {
+    window.history.pushState({}, '', `/Templates/${id}/Share`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
   if (showCreateForm) {
     return (
       <TemplateCreateForm
@@ -179,17 +184,14 @@ export const TemplateList: React.FC = () => {
                     : template.createdByUserId}
                 </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-gray-600">Paylaşıldı:</span>
-                <span
-                  className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                    template.isShared
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                <button
+                  onClick={() => handleManageShare(template.id)}
+                  className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
                 >
-                  {template.isShared ? 'Evet' : 'Hayır'}
-                </span>
+                  Yönet
+                </button>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Taglar:</span>
