@@ -11,6 +11,19 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onLogout, onOpenUserSettings }) => {
   const currentUser = authStore.getCurrentUser();
 
+  const getRoleText = (role?: string) => {
+    switch (role) {
+      case 'admin':
+        return 'Yönetici';
+      case 'operator':
+        return 'Operatör';
+      case 'pending':
+        return 'Onay Bekliyor';
+      default:
+        return '';
+    }
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -36,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout, onOpenUserSettings }) 
               <User className="h-5 w-5 text-gray-400" />
               <div className="text-sm text-left">
                 <div className="font-medium text-gray-900">{currentUser?.username}</div>
-                <div className="text-gray-500 capitalize">{currentUser?.role}</div>
+                <div className="text-gray-500">{getRoleText(currentUser?.role)}</div>
               </div>
             </button>
             <button

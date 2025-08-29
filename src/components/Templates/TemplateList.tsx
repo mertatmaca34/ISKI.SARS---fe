@@ -21,6 +21,7 @@ export const TemplateList: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const currentUser = authStore.getCurrentUser();
+  const [activeTab, setActiveTab] = useState<'my' | 'shared'>('my');
 
   const loadData = () => {
     const currentUser = authStore.getCurrentUser();
@@ -81,9 +82,15 @@ export const TemplateList: React.FC = () => {
     loadData();
   }, []);
 
-  const filteredTemplates = templates.filter((template) =>
-    template.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTemplates = templates.filter((template) => {
+    const matchesSearch = template.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    if (activeTab === 'my') {
+      return matchesSearch && template.createdByUserId === currentUser?.id;
+    }
+    return matchesSearch && template.createdByUserId !== currentUser?.id;
+  });
 
   const handleRefresh = () => {
     loadData();
@@ -151,6 +158,29 @@ export const TemplateList: React.FC = () => {
             <span>Yeni Şablon</span>
           </button>
         </div>
+      </div>
+
+      <div className="flex space-x-4 border-b pb-2">
+        <button
+          onClick={() => setActiveTab('my')}
+          className={`${
+            activeTab === 'my'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-500'
+          } pb-1`}
+        >
+          Şablonlarım
+        </button>
+        <button
+          onClick={() => setActiveTab('shared')}
+          className={`${
+            activeTab === 'shared'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-500'
+          } pb-1`}
+        >
+          Paylaşılanlar
+        </button>
       </div>
 
       {/* Search */}
