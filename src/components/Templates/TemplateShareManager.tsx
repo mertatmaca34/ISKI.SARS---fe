@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { templateService, userService, UserDto } from '../../services';
 import { authStore } from '../../store/authStore';
+import { SimpleToast } from '../SimpleToast';
 
 interface TemplateShareManagerProps {
   templateId: number;
@@ -16,6 +17,7 @@ export const TemplateShareManager: React.FC<TemplateShareManagerProps> = ({
   const [users, setUsers] = useState<UserDto[]>([]);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     const currentUser = authStore.getCurrentUser();
@@ -59,6 +61,11 @@ export const TemplateShareManager: React.FC<TemplateShareManagerProps> = ({
         name: templateName,
         sharedUserIds: Object.keys(selected).filter((id) => selected[id]),
       });
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+        onBack();
+      }, 3000);
     } finally {
       setIsSaving(false);
     }
@@ -125,6 +132,14 @@ export const TemplateShareManager: React.FC<TemplateShareManagerProps> = ({
           </table>
         </div>
       </div>
+      <SimpleToast
+        message="Paylaşımlar başarıyla kaydedildi."
+        open={showToast}
+        onClose={() => {
+          setShowToast(false);
+          onBack();
+        }}
+      />
     </div>
   );
 };

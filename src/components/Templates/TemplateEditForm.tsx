@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { templateService } from '../../services';
-import { SimpleToast } from '../SimpleToast';
 import { authStore } from '../../store/authStore';
+import { SimpleToast } from '../SimpleToast';
 
 interface TemplateEditFormProps {
   id: number;
@@ -13,8 +13,8 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     const currentUser = authStore.getCurrentUser();
@@ -35,6 +35,7 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
     setIsLoading(true);
     try {
       await templateService.update({ id, name, sharedUserIds: [] });
+      setIsLoading(false);
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -98,7 +99,14 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ id, onSucces
           </button>
         </div>
       </form>
-      <SimpleToast message="Şablon başarıyla güncellendi." open={showToast} onClose={() => { setShowToast(false); onSuccess(); }} />
+      <SimpleToast
+        message="Şablon başarıyla kaydedildi."
+        open={showToast}
+        onClose={() => {
+          setShowToast(false);
+          onSuccess();
+        }}
+      />
     </div>
   );
 };
