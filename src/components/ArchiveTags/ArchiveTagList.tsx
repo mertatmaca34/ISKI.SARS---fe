@@ -116,6 +116,7 @@ export const ArchiveTagList: React.FC = () => {
       await archiveTagService.create({
         tagName: node.displayName,
         tagNodeId: node.nodeId,
+        description: '',
         type: chosenInterval,
         isActive: true,
       });
