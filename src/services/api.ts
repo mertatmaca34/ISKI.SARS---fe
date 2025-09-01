@@ -1,6 +1,6 @@
 import { authStore } from '../store/authStore';
 
-const API_URL = (import.meta.env.VITE_API_URL || 'https://10.0.254.199:444/')
+const API_URL = (import.meta.env.VITE_API_URL || 'http://10.0.254.193:446/')
   .replace(/\/+$/, '');
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
