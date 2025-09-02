@@ -112,17 +112,24 @@ export const ArchiveTagList: React.FC = () => {
 
   const saveSelected = async (chosenInterval: number) => {
     const nodes = Object.values(selected);
-    for (const node of nodes) {
-      await archiveTagService.create({
-        tagName: node.displayName,
-        tagNodeId: node.nodeId,
-        type: chosenInterval,
-        isActive: true,
-      });
+    try {
+      await Promise.all(
+        nodes.map((node) =>
+          archiveTagService.create({
+            tagName: node.displayName,
+            tagNodeId: node.nodeId,
+            description: '',
+            type: chosenInterval,
+            isActive: true,
+          })
+        )
+      );
+      setSelected({});
+      setShowAdd(false);
+      loadTags();
+    } catch (error) {
+      console.error('Arşivleme başarısız oldu', error);
     }
-    setSelected({});
-    setShowAdd(false);
-    loadTags();
   };
 
   const filteredTags = tags.filter((tag) =>
