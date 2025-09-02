@@ -7,6 +7,7 @@ import {
   TreeNode,
 } from '../../services';
 import { ConfirmToast } from '../ConfirmToast';
+import { Toast } from '../Toast';
 import { authStore } from '../../store/authStore';
 import { TrendModal } from '../Trend/TrendModal';
 import { intervalOptions, formatInterval } from '../../constants/intervalOptions';
@@ -24,6 +25,7 @@ export const ArchiveTagList: React.FC = () => {
   const [isTreeLoading, setIsTreeLoading] = useState(false);
   const [showIntervalSelect, setShowIntervalSelect] = useState(false);
   const [interval, setInterval] = useState(intervalOptions[0].value);
+  const [showError, setShowError] = useState(false);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
 
   const loadTags = () =>
@@ -112,17 +114,25 @@ export const ArchiveTagList: React.FC = () => {
 
   const saveSelected = async (chosenInterval: number) => {
     const nodes = Object.values(selected);
-    for (const node of nodes) {
-      await archiveTagService.create({
-        tagName: node.displayName,
-        tagNodeId: node.nodeId,
-        type: chosenInterval,
-        isActive: true,
-      });
+    try {
+      await Promise.all(
+        nodes.map((node) =>
+          archiveTagService.create({
+            tagName: node.displayName,
+            tagNodeId: node.nodeId,
+            description: '',
+            type: chosenInterval,
+            isActive: true,
+          })
+        )
+      );
+      setSelected({});
+      setShowAdd(false);
+      loadTags();
+    } catch (error) {
+      console.error('Arşivleme başarısız oldu', error);
+      setShowError(true);
     }
-    setSelected({});
-    setShowAdd(false);
-    loadTags();
   };
 
   const filteredTags = tags.filter((tag) =>
@@ -145,6 +155,12 @@ export const ArchiveTagList: React.FC = () => {
 
   return (
     <div className="space-y-6 px-2">
+      <Toast
+        open={showError}
+        message="Arşivleme başarısız oldu"
+        type="error"
+        onClose={() => setShowError(false)}
+      />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">
           Arşivlenecek Taglar

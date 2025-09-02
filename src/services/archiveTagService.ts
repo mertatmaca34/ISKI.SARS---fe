@@ -11,15 +11,15 @@ export interface ArchiveTagDto {
 }
 
 export const archiveTagService = {
-  getById: (id: number) => api.get<ArchiveTagDto>(`/api/archivetags/${id}`),
+  getById: (id: number) => api.get<ArchiveTagDto>(`/api/ArchiveTags/${id}`),
   create: (data: Omit<ArchiveTagDto, 'id'>) =>
-    api.post<ArchiveTagDto>('/api/archivetags', data),
+    api.post<ArchiveTagDto>('/api/ArchiveTags', data),
   update: (data: ArchiveTagDto) =>
-    api.put<ArchiveTagDto>('/api/archivetags', data),
-  delete: (id: number) => api.delete<unknown>(`/api/archivetags/${id}`),
+    api.put<ArchiveTagDto>('/api/ArchiveTags', data),
+  delete: (id: number) => api.delete<unknown>(`/api/ArchiveTags/${id}`),
   list: (page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ArchiveTagDto>>(
-      `/api/archivetags/list?pageNumber=${page.index + 1}&pageSize=${page.size}`,
+      `/api/ArchiveTags/list?pageNumber=${page.index + 1}&pageSize=${page.size}`,
       query ?? {}
     ),
 };
