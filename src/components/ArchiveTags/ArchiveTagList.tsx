@@ -7,6 +7,7 @@ import {
   TreeNode,
 } from '../../services';
 import { ConfirmToast } from '../ConfirmToast';
+import { Toast } from '../Toast';
 import { authStore } from '../../store/authStore';
 import { TrendModal } from '../Trend/TrendModal';
 import { intervalOptions, formatInterval } from '../../constants/intervalOptions';
@@ -24,6 +25,7 @@ export const ArchiveTagList: React.FC = () => {
   const [isTreeLoading, setIsTreeLoading] = useState(false);
   const [showIntervalSelect, setShowIntervalSelect] = useState(false);
   const [interval, setInterval] = useState(intervalOptions[0].value);
+  const [showError, setShowError] = useState(false);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
 
   const loadTags = () =>
@@ -129,6 +131,7 @@ export const ArchiveTagList: React.FC = () => {
       loadTags();
     } catch (error) {
       console.error('Arşivleme başarısız oldu', error);
+      setShowError(true);
     }
   };
 
@@ -152,6 +155,12 @@ export const ArchiveTagList: React.FC = () => {
 
   return (
     <div className="space-y-6 px-2">
+      <Toast
+        open={showError}
+        message="Arşivleme başarısız oldu"
+        type="error"
+        onClose={() => setShowError(false)}
+      />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">
           Arşivlenecek Taglar
