@@ -19,7 +19,7 @@ export const archiveTagService = {
   delete: (id: number) => api.delete<unknown>(`/api/ArchiveTags/${id}`),
   list: (page: PageRequest, query?: DynamicQuery) =>
     api.post<PaginatedResponse<ArchiveTagDto>>(
-      `/api/ArchiveTags/list?pageNumber=${page.index + 1}&pageSize=${page.size}`,
-      query ?? {}
+      `/api/ArchiveTags/list?PageNumber=${page.index + 1}&PageSize=${page.size}`,
+      query ?? { filters: [], sorts: [] }
     ),
 };
