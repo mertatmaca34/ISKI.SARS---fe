@@ -29,7 +29,7 @@ export const ArchiveTagList: React.FC = () => {
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
 
   const loadTags = () =>
-    archiveTagService
+          archiveTagService
       .list({ index: 0, size: 100 })
       .then((res) => setTags(res.items))
       .catch(() => setTags([]));
@@ -121,7 +121,7 @@ export const ArchiveTagList: React.FC = () => {
             tagName: node.displayName,
             tagNodeId: node.nodeId,
             description: '',
-            type: chosenInterval,
+            pullInterval: chosenInterval,
             isActive: true,
           })
         )
@@ -249,7 +249,7 @@ export const ArchiveTagList: React.FC = () => {
                     {tag.description || ''}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatInterval(tag.type)}
+                    {formatInterval(tag.pullInterval)}
                   </td>
                 </tr>
               ))}
@@ -396,9 +396,12 @@ export const ArchiveTagList: React.FC = () => {
                 <div>
                   <label className="block text-sm">Çekim Aralığı</label>
                   <select
-                    value={editTag.type}
+                    value={editTag.pullInterval}
                     onChange={(e) =>
-                      setEditTag({ ...editTag!, type: Number(e.target.value) })
+                      setEditTag({
+                        ...editTag!,
+                        pullInterval: Number(e.target.value),
+                      })
                     }
                     className="mt-1 w-full border rounded-md p-2"
                   >

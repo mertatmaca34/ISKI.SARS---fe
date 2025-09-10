@@ -6,7 +6,7 @@ export interface ArchiveTagDto {
   tagName: string;
   tagNodeId: string;
   description?: string;
-  type: number;
+  pullInterval: number;
   isActive: boolean;
 }
 
