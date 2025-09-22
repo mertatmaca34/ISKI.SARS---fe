@@ -1,10 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   archiveTagService,
   ArchiveTagDto,
   trendService,
   TrendPoint,
 } from '../../services';
+import { Activity, Clock, Hash, TrendingDown, TrendingUp, X } from 'lucide-react';
+import { DashboardCard } from '../Dashboard/DashboardCard';
+
+const LINE_COLORS = ['#3b82f6', '#ef4444'];
 
 export const TrendDashboard: React.FC = () => {
   const [tags, setTags] = useState<ArchiveTagDto[]>([]);
@@ -19,7 +23,9 @@ export const TrendDashboard: React.FC = () => {
     const d = new Date();
     return d.toISOString().slice(0, 16);
   });
-  const [points, setPoints] = useState<TrendPoint[]>([]);
+  const [tagPoints, setTagPoints] = useState<Record<number, TrendPoint[]>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [realtime, setRealtime] = useState(false);
 
   useEffect(() => {
@@ -31,40 +37,95 @@ export const TrendDashboard: React.FC = () => {
 
   const activeTag = tags.find((t) => t.id === activeId) || null;
 
-  const loadData = useCallback(() => {
-    if (!activeTag) return;
-    trendService
-      .get(activeTag, start + ':00Z', end + ':00Z')
-      .then((res) => setPoints(res.points ?? []))
-      .catch(() => setPoints([]));
-  }, [activeTag, start, end]);
+  useEffect(() => {
+    if (selectedIds.length === 0) {
+      setActiveId(null);
+      return;
+    }
+
+    if (!activeId || !selectedIds.includes(activeId)) {
+      setActiveId(selectedIds[0]);
+    }
+  }, [activeId, selectedIds]);
+
+  const loadData = useCallback(async () => {
+    if (!selectedIds.length) {
+      setIsLoading(false);
+      setError(null);
+      setTagPoints({});
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    const next: Record<number, TrendPoint[]> = {};
+    let hadError = false;
+
+    for (const id of selectedIds) {
+      const tag = tags.find((t) => t.id === id);
+      if (!tag) {
+        next[id] = [];
+        continue;
+      }
+
+      try {
+        const res = await trendService.get(tag, start + ':00Z', end + ':00Z');
+        next[id] = res?.points ?? [];
+      } catch (err) {
+        hadError = true;
+        next[id] = [];
+      }
+    }
+
+    setTagPoints(next);
+    setIsLoading(false);
+    setError(hadError ? 'Veriler alınırken bir hata oluştu.' : null);
+  }, [selectedIds, tags, start, end]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   useEffect(() => {
-      if (!realtime || !activeTag) return;
-      const interval = setInterval(() => {
-        const now = new Date();
-        const s = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        setStart(s.toISOString().slice(0, 16));
-        setEnd(now.toISOString().slice(0, 16));
-        loadData();
-      }, 5000);
-      return () => clearInterval(interval);
-    }, [realtime, activeTag, loadData]);
+    if (!realtime || !selectedIds.length) return;
+    const interval = setInterval(() => {
+      const now = new Date();
+      const s = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      setStart(s.toISOString().slice(0, 16));
+      setEnd(now.toISOString().slice(0, 16));
+      loadData();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [realtime, selectedIds, loadData]);
 
   const handleAddTag = () => {
-    if (tagToAdd === '' || selectedIds.includes(tagToAdd as number)) return;
-    if (selectedIds.length >= 5) return;
+    if (tagToAdd === '') return;
     const id = Number(tagToAdd);
+    if (selectedIds.includes(id)) return;
+    if (selectedIds.length >= 2) return;
     setSelectedIds([...selectedIds, id]);
     setActiveId(id);
     setTagToAdd('');
   };
 
-  const selectedTags = tags.filter((t) => selectedIds.includes(t.id));
+  const selectedTags = useMemo(
+    () =>
+      selectedIds
+        .map((id) => tags.find((t) => t.id === id) || null)
+        .filter((t): t is ArchiveTagDto => t !== null),
+    [selectedIds, tags]
+  );
+
+  const handleRemoveTag = (id: number) => {
+    setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+    setTagPoints((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setActiveId((prev) => (prev === id ? null : prev));
+  };
 
   const handleLast24h = () => {
     const now = new Date();
@@ -87,12 +148,21 @@ export const TrendDashboard: React.FC = () => {
     win.print();
   };
 
-  const max = points.length ? Math.max(...points.map((p) => p.value)) : 0;
-  const min = points.length ? Math.min(...points.map((p) => p.value)) : 0;
-  const avg = points.length
-    ? points.reduce((s, p) => s + p.value, 0) / points.length
+  const activePoints = activeId ? tagPoints[activeId] ?? [] : [];
+  const allPoints = useMemo(
+    () => selectedIds.flatMap((id) => tagPoints[id] ?? []),
+    [selectedIds, tagPoints]
+  );
+  const hasData = useMemo(
+    () => selectedIds.some((id) => (tagPoints[id]?.length ?? 0) > 0),
+    [selectedIds, tagPoints]
+  );
+  const max = activePoints.length ? Math.max(...activePoints.map((p) => p.value)) : 0;
+  const min = activePoints.length ? Math.min(...activePoints.map((p) => p.value)) : 0;
+  const avg = activePoints.length
+    ? activePoints.reduce((s, p) => s + p.value, 0) / activePoints.length
     : 0;
-  const maxValue = Math.max(...points.map((d) => d.value), 1);
+  const maxValue = Math.max(...allPoints.map((d) => d.value), 1);
 
   return (
     <div className="space-y-6">
@@ -126,32 +196,53 @@ export const TrendDashboard: React.FC = () => {
           </select>
           <button
             onClick={handleAddTag}
-            disabled={tagToAdd === '' || selectedIds.length >= 5}
+            disabled={tagToAdd === '' || selectedIds.length >= 2}
             className="bg-blue-600 text-white px-3 py-2 rounded disabled:opacity-50"
           >
             Ekle
           </button>
-      </div>
-
-      {selectedTags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedTags.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setActiveId(t.id)}
-              className={`px-3 py-1 rounded ${
-                activeId === t.id
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700'
-              }`}
-            >
-              {t.tagName}
-            </button>
-          ))}
         </div>
-      )}
 
-      {activeTag ? (
+        {selectedTags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {selectedTags.map((t, idx) => {
+              const isActive = activeId === t.id;
+              const color = LINE_COLORS[idx % LINE_COLORS.length];
+              return (
+                <div
+                  key={t.id}
+                  className={`flex items-center gap-2 rounded border px-3 py-1 ${
+                    isActive
+                      ? 'bg-blue-50 border-blue-400 text-blue-700'
+                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveId(t.id)}
+                    className="flex items-center gap-2 focus:outline-none"
+                  >
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span>{t.tagName}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(t.id)}
+                    className="text-gray-500 hover:text-gray-700"
+                    aria-label={`${t.tagName} etiketini kaldır`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+      {selectedTags.length > 0 ? (
         <div id="trend-dashboard-content" className="space-y-4">
           <div className="flex flex-wrap gap-2 items-end">
             <div>
@@ -207,30 +298,58 @@ export const TrendDashboard: React.FC = () => {
                   strokeWidth="1"
                 />
               ))}
-              <polyline
-                points={points
-                  .map(
-                    (d, i) =>
-                      `${i * (400 / Math.max(points.length - 1, 1))},${200 -
-                        (d.value / maxValue) * 160}`
-                  )
-                  .join(' ')}
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="2"
-              />
-              {points.map((d, i) => (
-                <circle
-                  key={d.timestamp}
-                  cx={i * (400 / Math.max(points.length - 1, 1))}
-                  cy={200 - (d.value / maxValue) * 160}
-                  r="4"
-                  fill="#3b82f6"
-                />
-              ))}
+              {selectedIds.map((id, idx) => {
+                const seriesPoints = tagPoints[id] ?? [];
+                if (!seriesPoints.length) return null;
+                const color = LINE_COLORS[idx % LINE_COLORS.length];
+                const step = 400 / Math.max(seriesPoints.length - 1, 1);
+                return (
+                  <React.Fragment key={id}>
+                    <polyline
+                      points={seriesPoints
+                        .map(
+                          (d, i) =>
+                            `${i * step},${200 - (d.value / maxValue) * 160}`
+                        )
+                        .join(' ')}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth={activeId === id ? 3 : 2}
+                      strokeOpacity={
+                        activeId && activeId !== id ? 0.6 : 1
+                      }
+                    />
+                    {seriesPoints.map((d, i) => (
+                      <circle
+                        key={`${id}-${d.timestamp}-${i}`}
+                        cx={i * step}
+                        cy={200 - (d.value / maxValue) * 160}
+                        r={activeId === id ? 4 : 3}
+                        fill={color}
+                        fillOpacity={activeId && activeId !== id ? 0.7 : 1}
+                      />
+                    ))}
+                  </React.Fragment>
+                );
+              })}
             </svg>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-gray-600">
+                Veriler yükleniyor...
+              </div>
+            )}
+            {!isLoading && error && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-red-600 text-center px-4">
+                {error}
+              </div>
+            )}
+            {!isLoading && !error && !hasData && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-gray-500 text-center px-4">
+                Seçili etiketler için görüntülenecek veri bulunamadı.
+              </div>
+            )}
             <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 pt-2">
-              {points.map((d) => (
+              {activePoints.map((d) => (
                 <span key={d.timestamp}>
                   {new Date(d.timestamp).toLocaleTimeString('tr-TR', {
                     hour: '2-digit',
@@ -245,7 +364,7 @@ export const TrendDashboard: React.FC = () => {
               <DashboardCard title="Max" value={max} icon={TrendingUp} color="blue" />
               <DashboardCard title="Min" value={min} icon={TrendingDown} color="green" />
               <DashboardCard title="Ortalama" value={avg.toFixed(2)} icon={Activity} color="yellow" />
-              <DashboardCard title="Toplam" value={points.length} icon={Hash} color="blue" />
+              <DashboardCard title="Toplam" value={activePoints.length} icon={Hash} color="blue" />
             </div>
         </div>
       ) : (
