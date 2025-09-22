@@ -24,6 +24,8 @@ export const TrendDashboard: React.FC = () => {
     return d.toISOString().slice(0, 16);
   });
   const [tagPoints, setTagPoints] = useState<Record<number, TrendPoint[]>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [realtime, setRealtime] = useState(false);
 
   useEffect(() => {
@@ -48,33 +50,37 @@ export const TrendDashboard: React.FC = () => {
 
   const loadData = useCallback(async () => {
     if (!selectedIds.length) {
+      setIsLoading(false);
+      setError(null);
       setTagPoints({});
       return;
     }
 
-    const responses = await Promise.all(
-      selectedIds.map(async (id) => {
-        const tag = tags.find((t) => t.id === id);
-        if (!tag) {
-          return { id, points: [] as TrendPoint[] };
-        }
+    setIsLoading(true);
+    setError(null);
 
-        try {
-          const res = await trendService.get(tag, start + ':00Z', end + ':00Z');
-          return { id, points: res.points ?? [] };
-        } catch (error) {
-          return { id, points: [] as TrendPoint[] };
-        }
-      })
-    );
+    const next: Record<number, TrendPoint[]> = {};
+    let hadError = false;
 
-    setTagPoints((prev) => {
-      const next: Record<number, TrendPoint[]> = {};
-      responses.forEach(({ id, points }) => {
-        next[id] = points;
-      });
-      return next;
-    });
+    for (const id of selectedIds) {
+      const tag = tags.find((t) => t.id === id);
+      if (!tag) {
+        next[id] = [];
+        continue;
+      }
+
+      try {
+        const res = await trendService.get(tag, start + ':00Z', end + ':00Z');
+        next[id] = res?.points ?? [];
+      } catch (err) {
+        hadError = true;
+        next[id] = [];
+      }
+    }
+
+    setTagPoints(next);
+    setIsLoading(false);
+    setError(hadError ? 'Veriler alınırken bir hata oluştu.' : null);
   }, [selectedIds, tags, start, end]);
 
   useEffect(() => {
@@ -145,6 +151,10 @@ export const TrendDashboard: React.FC = () => {
   const activePoints = activeId ? tagPoints[activeId] ?? [] : [];
   const allPoints = useMemo(
     () => selectedIds.flatMap((id) => tagPoints[id] ?? []),
+    [selectedIds, tagPoints]
+  );
+  const hasData = useMemo(
+    () => selectedIds.some((id) => (tagPoints[id]?.length ?? 0) > 0),
     [selectedIds, tagPoints]
   );
   const max = activePoints.length ? Math.max(...activePoints.map((p) => p.value)) : 0;
@@ -323,6 +333,21 @@ export const TrendDashboard: React.FC = () => {
                 );
               })}
             </svg>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-gray-600">
+                Veriler yükleniyor...
+              </div>
+            )}
+            {!isLoading && error && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-red-600 text-center px-4">
+                {error}
+              </div>
+            )}
+            {!isLoading && !error && !hasData && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-gray-500 text-center px-4">
+                Seçili etiketler için görüntülenecek veri bulunamadı.
+              </div>
+            )}
             <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 pt-2">
               {activePoints.map((d) => (
                 <span key={d.timestamp}>
