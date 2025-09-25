@@ -17,7 +17,9 @@ export const ArchiveTagList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [tree, setTree] = useState<TreeNode | null>(null);
-  const [selected, setSelected] = useState<Record<string, TreeNode>>({});
+  const [selected, setSelected] = useState<
+    Record<string, { node: TreeNode; description: string }>
+  >({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [trendTag, setTrendTag] = useState<ArchiveTagDto | null>(null);
@@ -29,7 +31,7 @@ export const ArchiveTagList: React.FC = () => {
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
 
   const loadTags = () =>
-          archiveTagService
+    archiveTagService
       .list({ index: 0, size: 100 })
       .then((res) => setTags(res.items))
       .catch(() => setTags([]));
@@ -57,9 +59,22 @@ export const ArchiveTagList: React.FC = () => {
       if (copy[node.nodeId]) {
         delete copy[node.nodeId];
       } else {
-        copy[node.nodeId] = node;
+        copy[node.nodeId] = { node, description: '' };
       }
       return copy;
+    });
+  };
+
+  const handleDescriptionChange = (nodeId: string, value: string) => {
+    setSelected((prev) => {
+      if (!prev[nodeId]) return prev;
+      return {
+        ...prev,
+        [nodeId]: {
+          ...prev[nodeId],
+          description: value,
+        },
+      };
     });
   };
 
@@ -112,15 +127,20 @@ export const ArchiveTagList: React.FC = () => {
     );
   };
 
+  const selectedValues = Object.values(selected);
+  const hasEmptyDescription = selectedValues.some(
+    ({ description }) => description.trim() === ''
+  );
+
   const saveSelected = async (chosenInterval: number) => {
     const nodes = Object.values(selected);
     try {
       await Promise.all(
-        nodes.map((node) =>
+        nodes.map(({ node, description }) =>
           archiveTagService.create({
             tagName: node.displayName,
             tagNodeId: node.nodeId,
-            description: '',
+            description: description.trim(),
             pullInterval: chosenInterval,
             isActive: true,
           })
@@ -193,25 +213,25 @@ export const ArchiveTagList: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-auto h-[calc(100vh-12rem)]">
           <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {isAdmin && (
-                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      İşlemler
-                    </th>
-                  )}
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Etiket Adı
+            <thead className="bg-gray-50">
+              <tr>
+                {isAdmin && (
+                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    İşlemler
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Açıklama
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Çekim Aralığı
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+                )}
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Etiket Adı
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Açıklama
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Çekim Aralığı
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
               {filteredTags.map((tag) => (
                 <tr
                   key={tag.id}
@@ -293,7 +313,7 @@ export const ArchiveTagList: React.FC = () => {
               </button>
               <button
                 onClick={() => setShowIntervalSelect(true)}
-                disabled={Object.keys(selected).length === 0}
+                disabled={selectedValues.length === 0 || hasEmptyDescription}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
                 Kaydet
@@ -310,6 +330,43 @@ export const ArchiveTagList: React.FC = () => {
                 <p className="text-center text-sm text-gray-500">Veri yok</p>
               )}
             </div>
+            {selectedValues.length > 0 && (
+              <div className="border-t p-4 space-y-3 max-h-60 overflow-auto">
+                {hasEmptyDescription && (
+                  <p className="text-sm text-red-600">
+                    Lütfen tüm seçilen etiketler için açıklama giriniz.
+                  </p>
+                )}
+                <h3 className="text-sm font-semibold text-gray-700">
+                  Seçilen Etiketler
+                </h3>
+                {selectedValues.map(({ node, description }) => (
+                  <div key={node.nodeId} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-gray-900">
+                        {node.displayName}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => toggleNode(node)}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        Kaldır
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={description}
+                      onChange={(e) =>
+                        handleDescriptionChange(node.nodeId, e.target.value)
+                      }
+                      placeholder="Açıklama giriniz"
+                      className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
