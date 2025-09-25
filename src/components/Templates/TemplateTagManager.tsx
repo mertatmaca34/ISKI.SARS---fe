@@ -25,8 +25,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   const [templateName, setTemplateName] = useState('');
   const [createdBy, setCreatedBy] = useState('');
   const [selected, setSelected] = useState<Record<number, ArchiveTagDto>>({});
-  const [descriptions, setDescriptions] = useState<Record<number, string>>({});
-  const [error, setError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const loadTags = useCallback(() => {
@@ -73,46 +71,25 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
       const copy = { ...prev };
       if (copy[tag.id]) {
         delete copy[tag.id];
-        setDescriptions((prevDesc) => {
-          const next = { ...prevDesc };
-          delete next[tag.id];
-          return next;
-        });
       } else {
         copy[tag.id] = tag;
-        setDescriptions((prevDesc) => ({
-          ...prevDesc,
-          [tag.id]: prevDesc[tag.id] ?? tag.description ?? '',
-        }));
       }
       return copy;
     });
-    setError(null);
   };
 
   const saveTags = async () => {
-    const missingDescription = Object.values(selected).some(
-      (tag) => !descriptions[tag.id]?.trim()
-    );
-
-    if (missingDescription) {
-      setError('Lütfen seçili tüm etiketler için açıklama girin.');
-      return;
-    }
-
     for (const tag of Object.values(selected)) {
       if (!tags.some((t) => t.tagNodeId === tag.tagNodeId)) {
         await tagService.create({
           reportTemplateId: templateId,
           tagName: tag.tagName,
           tagNodeId: tag.tagNodeId,
-          description: descriptions[tag.id].trim(),
+          description: tag.description ?? '',
         });
       }
     }
     setSelected({});
-    setDescriptions({});
-    setError(null);
     loadTags();
   };
 
@@ -127,11 +104,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
     window.history.pushState({}, '', `/Templates/${templateId}/Share`);
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
-
-  const selectedTags = Object.values(selected);
-  const isSaveDisabled =
-    selectedTags.length === 0 ||
-    selectedTags.some((tag) => !descriptions[tag.id]?.trim());
 
   return (
     <div className="space-y-6 px-2">
@@ -164,15 +136,12 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
             <div className="flex justify-end p-4 border-b">
               <button
                 onClick={saveTags}
-                disabled={isSaveDisabled}
+                disabled={Object.keys(selected).length === 0}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
                 Kaydet
               </button>
             </div>
-            {error && (
-              <p className="px-4 pt-2 text-sm text-red-600">{error}</p>
-            )}
             <div className="flex-1 overflow-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -183,9 +152,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Node ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Açıklama
                     </th>
                   </tr>
                 </thead>
@@ -204,21 +170,6 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
                         {tag.tagNodeId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <input
-                          type="text"
-                          value={descriptions[tag.id] ?? ''}
-                          onChange={(e) =>
-                            setDescriptions((prev) => ({
-                              ...prev,
-                              [tag.id]: e.target.value,
-                            }))
-                          }
-                          disabled={!selected[tag.id]}
-                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm disabled:bg-gray-100 disabled:text-gray-500"
-                          placeholder="Açıklama girin"
-                        />
                       </td>
                     </tr>
                   ))}
