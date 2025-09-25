@@ -72,7 +72,7 @@ export const TrendDashboard: React.FC = () => {
       try {
         const res = await trendService.get(tag, start + ':00Z', end + ':00Z');
         next[id] = res?.points ?? [];
-      } catch (err) {
+      } catch {
         hadError = true;
         next[id] = [];
       }
