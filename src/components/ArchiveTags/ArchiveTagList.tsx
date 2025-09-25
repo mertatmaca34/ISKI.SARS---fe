@@ -17,7 +17,9 @@ export const ArchiveTagList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [tree, setTree] = useState<TreeNode | null>(null);
-  const [selected, setSelected] = useState<Record<string, TreeNode>>({});
+  const [selected, setSelected] = useState<
+    Record<string, { node: TreeNode; description: string }>
+  >({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [trendTag, setTrendTag] = useState<ArchiveTagDto | null>(null);
@@ -25,11 +27,13 @@ export const ArchiveTagList: React.FC = () => {
   const [isTreeLoading, setIsTreeLoading] = useState(false);
   const [showIntervalSelect, setShowIntervalSelect] = useState(false);
   const [interval, setInterval] = useState(intervalOptions[0].value);
-  const [showError, setShowError] = useState(false);
+  const [toast, setToast] = useState<
+    { message: string; type: 'success' | 'error' | 'info' } | null
+  >(null);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
 
   const loadTags = () =>
-          archiveTagService
+    archiveTagService
       .list({ index: 0, size: 100 })
       .then((res) => setTags(res.items))
       .catch(() => setTags([]));
@@ -57,9 +61,22 @@ export const ArchiveTagList: React.FC = () => {
       if (copy[node.nodeId]) {
         delete copy[node.nodeId];
       } else {
-        copy[node.nodeId] = node;
+        copy[node.nodeId] = { node, description: '' };
       }
       return copy;
+    });
+  };
+
+  const handleDescriptionChange = (nodeId: string, value: string) => {
+    setSelected((prev) => {
+      if (!prev[nodeId]) return prev;
+      return {
+        ...prev,
+        [nodeId]: {
+          ...prev[nodeId],
+          description: value,
+        },
+      };
     });
   };
 
@@ -112,15 +129,51 @@ export const ArchiveTagList: React.FC = () => {
     );
   };
 
-  const saveSelected = async (chosenInterval: number) => {
+  const selectedValues = Object.values(selected);
+  const hasEmptyDescription = selectedValues.some(
+    ({ description }) => description.trim() === ''
+  );
+
+  const saveSelected = async (
+    chosenInterval: number
+  ): Promise<'success' | 'skipped' | 'error'> => {
     const nodes = Object.values(selected);
+    const existingNodeIds = new Set(tags.map((tag) => tag.tagNodeId));
+    const duplicates = nodes.filter(({ node }) => existingNodeIds.has(node.nodeId));
+    const nodesToCreate = nodes.filter(
+      ({ node }) => !existingNodeIds.has(node.nodeId)
+    );
+
+    if (duplicates.length > 0) {
+      setSelected((prev) => {
+        const copy = { ...prev };
+        duplicates.forEach(({ node }) => {
+          delete copy[node.nodeId];
+        });
+        return copy;
+      });
+    }
+
+    if (nodesToCreate.length === 0) {
+      if (duplicates.length > 0) {
+        setToast({
+          message:
+            duplicates.length === 1
+              ? 'Seçtiğiniz etiket zaten arşivde mevcut.'
+              : 'Seçtiğiniz etiketler zaten arşivde mevcut.',
+          type: 'info',
+        });
+      }
+      return 'skipped';
+    }
+
     try {
       await Promise.all(
-        nodes.map((node) =>
+        nodesToCreate.map(({ node, description }) =>
           archiveTagService.create({
             tagName: node.displayName,
             tagNodeId: node.nodeId,
-            description: '',
+            description: description.trim(),
             pullInterval: chosenInterval,
             isActive: true,
           })
@@ -129,9 +182,26 @@ export const ArchiveTagList: React.FC = () => {
       setSelected({});
       setShowAdd(false);
       loadTags();
+
+      const createdCount = nodesToCreate.length;
+      const skippedCount = duplicates.length;
+      const successMessage =
+        skippedCount > 0
+          ? `${createdCount} etiket eklendi. ${skippedCount} etiket zaten arşivdeydi.`
+          : createdCount === 1
+          ? 'Etiket başarıyla arşivlendi.'
+          : 'Etiketler başarıyla arşivlendi.';
+
+      setToast({ message: successMessage, type: 'success' });
+      return 'success';
     } catch (error) {
       console.error('Arşivleme başarısız oldu', error);
-      setShowError(true);
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'Arşivleme başarısız oldu';
+      setToast({ message, type: 'error' });
+      return 'error';
     }
   };
 
@@ -156,10 +226,10 @@ export const ArchiveTagList: React.FC = () => {
   return (
     <div className="space-y-6 px-2">
       <Toast
-        open={showError}
-        message="Arşivleme başarısız oldu"
-        type="error"
-        onClose={() => setShowError(false)}
+        open={toast !== null}
+        message={toast?.message ?? ''}
+        type={toast?.type}
+        onClose={() => setToast(null)}
       />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">
@@ -193,25 +263,25 @@ export const ArchiveTagList: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-auto h-[calc(100vh-12rem)]">
           <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {isAdmin && (
-                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      İşlemler
-                    </th>
-                  )}
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Etiket Adı
+            <thead className="bg-gray-50">
+              <tr>
+                {isAdmin && (
+                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    İşlemler
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Açıklama
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Çekim Aralığı
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+                )}
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Etiket Adı
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Açıklama
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Çekim Aralığı
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
               {filteredTags.map((tag) => (
                 <tr
                   key={tag.id}
@@ -293,7 +363,7 @@ export const ArchiveTagList: React.FC = () => {
               </button>
               <button
                 onClick={() => setShowIntervalSelect(true)}
-                disabled={Object.keys(selected).length === 0}
+                disabled={selectedValues.length === 0 || hasEmptyDescription}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
                 Kaydet
@@ -310,6 +380,43 @@ export const ArchiveTagList: React.FC = () => {
                 <p className="text-center text-sm text-gray-500">Veri yok</p>
               )}
             </div>
+            {selectedValues.length > 0 && (
+              <div className="border-t p-4 space-y-3 max-h-60 overflow-auto">
+                {hasEmptyDescription && (
+                  <p className="text-sm text-red-600">
+                    Lütfen tüm seçilen etiketler için açıklama giriniz.
+                  </p>
+                )}
+                <h3 className="text-sm font-semibold text-gray-700">
+                  Seçilen Etiketler
+                </h3>
+                {selectedValues.map(({ node, description }) => (
+                  <div key={node.nodeId} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-gray-900">
+                        {node.displayName}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => toggleNode(node)}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        Kaldır
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={description}
+                      onChange={(e) =>
+                        handleDescriptionChange(node.nodeId, e.target.value)
+                      }
+                      placeholder="Açıklama giriniz"
+                      className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -348,8 +455,10 @@ export const ArchiveTagList: React.FC = () => {
               </button>
               <button
                 onClick={async () => {
-                  await saveSelected(interval);
-                  setShowIntervalSelect(false);
+                  const result = await saveSelected(interval);
+                  if (result === 'success' || result === 'skipped') {
+                    setShowIntervalSelect(false);
+                  }
                 }}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md"
               >
