@@ -6,16 +6,14 @@ import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { TemplateList } from './components/Templates/TemplateList';
 import { TemplateEditForm } from './components/Templates/TemplateEditForm';
-import { SimpleUserList } from './components/Users/SimpleUserList';
 import { UserEditForm } from './components/Users/UserEditForm';
 import { LogList } from './components/Logs/LogList';
 import { Settings } from './components/Settings/Settings';
 import { TemplateTagManager } from './components/Templates/TemplateTagManager';
 import { TemplateShareManager } from './components/Templates/TemplateShareManager';
-import { OperationClaimList } from './components/OperationClaims/OperationClaimList';
-import { UserOperationClaimList } from './components/UserOperationClaims/UserOperationClaimList';
 import { UserSettings } from './components/Users/UserSettings';
 import { ArchiveTagList } from './components/ArchiveTags/ArchiveTagList';
+import { UserManagementHub } from './components/UserManagement/UserManagementHub';
 import { authStore } from './store/authStore';
 
 function App() {
@@ -51,12 +49,8 @@ function App() {
         return <TemplateList />;
       case 'archive-tags':
         return <ArchiveTagList />;
-      case 'operationclaims':
-        return <OperationClaimList />;
-      case 'useroperationclaims':
-        return <UserOperationClaimList />;
-      case 'users':
-        return <SimpleUserList />;
+      case 'user-management':
+        return <UserManagementHub />;
       case 'logs':
         return <LogList />;
       case 'settings':
@@ -98,7 +92,7 @@ function App() {
       <div className="h-screen overflow-hidden bg-gray-50">
         <Header onLogout={handleLogout} onOpenUserSettings={() => setActiveTab('user-settings')} />
         <div className="flex">
-          <Sidebar activeTab="users" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
+          <Sidebar activeTab="user-management" onTabChange={(tab) => { setActiveTab(tab); navigate('/'); }} />
           <main className="flex-1 p-4">
             <div className="mx-2 max-w-none">
               <UserEditForm id={id} onSuccess={() => navigate('/Users')} onCancel={() => navigate('/Users')} />
