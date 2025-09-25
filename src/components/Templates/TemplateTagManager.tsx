@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import {
   tagService,
@@ -24,7 +24,9 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   const [available, setAvailable] = useState<ArchiveTagDto[]>([]);
   const [templateName, setTemplateName] = useState('');
   const [createdBy, setCreatedBy] = useState('');
-  const [selected, setSelected] = useState<Record<number, ArchiveTagDto>>({});
+  const [selected, setSelected] = useState<
+    Record<number, { tag: ArchiveTagDto; description: string }>
+  >({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const loadTags = useCallback(() => {
@@ -72,20 +74,42 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
       if (copy[tag.id]) {
         delete copy[tag.id];
       } else {
-        copy[tag.id] = tag;
+        copy[tag.id] = {
+          tag,
+          description: tag.description ?? '',
+        };
       }
       return copy;
     });
   };
 
+  const handleDescriptionChange = (tagId: number, value: string) => {
+    setSelected((prev) => {
+      if (!prev[tagId]) return prev;
+      return {
+        ...prev,
+        [tagId]: {
+          ...prev[tagId],
+          description: value,
+        },
+      };
+    });
+  };
+
+  const selectedValues = useMemo(() => Object.values(selected), [selected]);
+  const hasEmptyDescription = selectedValues.some(
+    ({ description }) => description.trim() === ''
+  );
+  const isSaveDisabled = selectedValues.length === 0 || hasEmptyDescription;
+
   const saveTags = async () => {
-    for (const tag of Object.values(selected)) {
+    for (const { tag, description } of selectedValues) {
       if (!tags.some((t) => t.tagNodeId === tag.tagNodeId)) {
         await tagService.create({
           reportTemplateId: templateId,
           tagName: tag.tagName,
           tagNodeId: tag.tagNodeId,
-          description: tag.description ?? '',
+          description: description.trim(),
         });
       }
     }
@@ -136,12 +160,17 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
             <div className="flex justify-end p-4 border-b">
               <button
                 onClick={saveTags}
-                disabled={Object.keys(selected).length === 0}
+                disabled={isSaveDisabled}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
                 Kaydet
               </button>
             </div>
+            {selectedValues.length > 0 && hasEmptyDescription && (
+                <p className="px-4 text-sm text-red-600">
+                  Lütfen tüm seçilen etiketler için açıklama giriniz.
+                </p>
+              )}
             <div className="flex-1 overflow-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -152,6 +181,9 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Node ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Açıklama
                     </th>
                   </tr>
                 </thead>
@@ -170,6 +202,18 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
                         {tag.tagNodeId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <input
+                          type="text"
+                          value={selected[tag.id]?.description ?? ''}
+                          onChange={(e) =>
+                            handleDescriptionChange(tag.id, e.target.value)
+                          }
+                          disabled={!selected[tag.id]}
+                          placeholder="Açıklama giriniz"
+                          className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                        />
                       </td>
                     </tr>
                   ))}
