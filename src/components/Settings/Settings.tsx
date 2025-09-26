@@ -62,7 +62,7 @@ export const Settings: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                OPC Server URL
+                OPC Sunucusu URL'si
               </label>
               <input
                 type="text"
@@ -173,10 +173,10 @@ export const Settings: React.FC = () => {
                 onChange={(e) => setSettings({...settings, logLevel: Number(e.target.value)})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value={0}>Error</option>
-                <option value={1}>Warning</option>
-                <option value={2}>Info</option>
-                <option value={3}>Debug</option>
+                <option value={0}>Hata</option>
+                <option value={1}>Uyarı</option>
+                <option value={2}>Bilgi</option>
+                <option value={3}>Hata Ayıklama</option>
               </select>
             </div>
           </div>
