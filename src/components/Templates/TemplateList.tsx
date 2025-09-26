@@ -258,7 +258,7 @@ export const TemplateList: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Taglar:</span>
+                <span className="text-gray-600">Etiketler:</span>
                 <button
                   onClick={() => handleManageTags(template.id)}
                   className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"

@@ -85,7 +85,7 @@ export const SystemInfo: React.FC = () => {
       ))}
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Anasayfa</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Sistem Bilgileri</h1>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <ActivityIcon className="h-4 w-4" />
           <span>Son güncelleme: {new Date().toLocaleTimeString('tr-TR')}</span>
@@ -113,7 +113,7 @@ export const SystemInfo: React.FC = () => {
           color="blue"
         />
         <DashboardCard
-          title="Sistem Uptime"
+          title="Sistem Çalışma Süresi"
           value={stats.uptime}
           icon={TrendingUp}
           color="green"

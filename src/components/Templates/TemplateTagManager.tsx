@@ -109,7 +109,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
     <div className="space-y-6 px-2">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">
-          Taglar - {templateName}
+          Etiketler - {templateName}
         </h1>
         <button
           onClick={onBack}
@@ -151,7 +151,7 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
                       Etiket Adı
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Node ID
+                      Düğüm Kimliği
                     </th>
                   </tr>
                 </thead>
