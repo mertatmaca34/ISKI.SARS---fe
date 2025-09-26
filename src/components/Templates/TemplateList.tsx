@@ -249,22 +249,28 @@ export const TemplateList: React.FC = () => {
                 <span className="text-gray-600">Paylaşıldı:</span>
                 <div className="flex items-center space-x-2">
                   <span>{shares[template.id] || 0}</span>
-                  <button
-                    onClick={() => handleManageShare(template.id)}
-                    className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
-                  >
-                    Yönet
-                  </button>
+                  {currentUser?.role === 'admin' && (
+                    <button
+                      onClick={() => handleManageShare(template.id)}
+                      className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
+                    >
+                      Yönet
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Etiketler:</span>
-                <button
-                  onClick={() => handleManageTags(template.id)}
-                  className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
-                >
-                  Yönet
-                </button>
+                {currentUser?.role === 'admin' ? (
+                  <button
+                    onClick={() => handleManageTags(template.id)}
+                    className="px-2 py-1 text-sm bg-gray-200 rounded-md hover:bg-gray-300"
+                  >
+                    Yönet
+                  </button>
+                ) : (
+                  <span className="text-gray-500">-</span>
+                )}
               </div>
             </div>
 
