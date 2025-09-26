@@ -5,7 +5,14 @@ function parseJwt(token: string): Record<string, unknown> | null {
   try {
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
-    const json = atob(padded);
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const json =
+      typeof TextDecoder !== 'undefined'
+        ? new TextDecoder('utf-8').decode(bytes)
+        : decodeURIComponent(
+            Array.from(bytes, (byte) => `%${byte.toString(16).padStart(2, '0')}`).join('')
+          );
     return JSON.parse(json);
   } catch {
     return null;
