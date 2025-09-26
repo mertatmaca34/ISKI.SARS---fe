@@ -30,6 +30,7 @@ export const ArchiveTagList: React.FC = () => {
   const [toast, setToast] = useState<
     { message: string; type: 'success' | 'error' | 'info' } | null
   >(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
   const isAdmin = authStore.getCurrentUser()?.role === 'admin';
 
   const loadTags = () =>
@@ -223,6 +224,26 @@ export const ArchiveTagList: React.FC = () => {
     loadTags();
   };
 
+  const handleToggleActive = async (tag: ArchiveTagDto) => {
+    setTogglingId(tag.id);
+    try {
+      await archiveTagService.update({ ...tag, isActive: !tag.isActive });
+      setToast({
+        message: `Etiket ${tag.isActive ? 'pasif' : 'aktif'} hale getirildi.`,
+        type: 'success',
+      });
+      await loadTags();
+    } catch (error) {
+      console.error('Etiket durumu güncellenemedi', error);
+      setToast({
+        message: 'Etiket durumu güncellenemedi.',
+        type: 'error',
+      });
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6 px-2">
       <Toast
@@ -279,6 +300,9 @@ export const ArchiveTagList: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Çekim Aralığı
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Durum
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -291,6 +315,26 @@ export const ArchiveTagList: React.FC = () => {
                   {isAdmin && (
                     <td className="px-2 py-4 whitespace-nowrap text-sm">
                       <div className="flex items-center space-x-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleActive(tag);
+                          }}
+                          disabled={togglingId === tag.id}
+                          className={`p-2 rounded-md text-white flex items-center justify-center ${
+                            tag.isActive
+                              ? 'bg-green-600 hover:bg-green-700'
+                              : 'bg-gray-500 hover:bg-gray-600'
+                          } disabled:opacity-50`}
+                        >
+                          {togglingId === tag.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : tag.isActive ? (
+                            'Pasifleştir'
+                          ) : (
+                            'Aktifleştir'
+                          )}
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -320,6 +364,17 @@ export const ArchiveTagList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {formatInterval(tag.pullInterval)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        tag.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      {tag.isActive ? 'Aktif' : 'Pasif'}
+                    </span>
                   </td>
                 </tr>
               ))}
