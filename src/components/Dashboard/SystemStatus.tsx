@@ -70,6 +70,20 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    const normalized = normalizeStatus(status);
+    switch (normalized) {
+      case 'good':
+        return 'Sağlıklı';
+      case 'warning':
+        return 'Uyarı';
+      case 'bad':
+        return 'Kritik';
+      default:
+        return status;
+    }
+  };
+
   const formatValue = (metric: SystemMetric) => {
     if (metric.value === 1) {
       return 'Bağlı';
@@ -102,8 +116,8 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ metrics }) => {
               </div>
               <div className="text-right">
                 <p className="font-semibold text-gray-900">{formatValue(metric)}</p>
-                <p className={`text-sm font-medium capitalize ${getStatusTextColor(metric.status)}`}>
-                  {metric.status}
+                <p className={`text-sm font-medium ${getStatusTextColor(metric.status)}`}>
+                  {getStatusLabel(metric.status)}
                 </p>
               </div>
             </div>

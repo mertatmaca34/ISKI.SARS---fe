@@ -9,6 +9,19 @@ export const LogList: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [level, setLevel] = useState('');
 
+  const logLevelLabels: Record<LogLevel, string> = {
+    [LogLevel.Trace]: 'İzleme',
+    [LogLevel.Debug]: 'Hata Ayıklama',
+    [LogLevel.Info]: 'Bilgi',
+    [LogLevel.Warn]: 'Uyarı',
+    [LogLevel.Error]: 'Hata',
+    [LogLevel.Fatal]: 'Kritik Hata',
+  };
+
+  const logLevelOptions = Object.values(LogLevel).filter(
+    (value): value is LogLevel => typeof value === 'number'
+  );
+
   useEffect(() => {
     logService
       .list({ index: 0, size: 50 })
@@ -16,9 +29,8 @@ export const LogList: React.FC = () => {
       .catch(() => setLogs([]));
   }, []);
 
-  const levelToString = (level: LogLevel) => LogLevel[level];
-
-  const logLevels = Object.keys(LogLevel).filter((v) => isNaN(Number(v)));
+  const levelToString = (value: LogLevel) =>
+    logLevelLabels[value] ?? LogLevel[value];
 
   const filteredLogs = logs.filter((log) => {
     const date = new Date(log.createdAt);
@@ -65,9 +77,9 @@ export const LogList: React.FC = () => {
             className="border border-gray-300 rounded-md p-1"
           >
             <option value="">Tümü</option>
-            {logLevels.map((l) => (
-              <option key={l} value={LogLevel[l as keyof typeof LogLevel]}>
-                {l}
+            {logLevelOptions.map((logLevelValue) => (
+              <option key={logLevelValue} value={logLevelValue}>
+                {levelToString(logLevelValue)}
               </option>
             ))}
           </select>
@@ -107,7 +119,7 @@ export const LogList: React.FC = () => {
                     {log.message}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(log.createdAt).toLocaleString()}
+                    {new Date(log.createdAt).toLocaleString('tr-TR')}
                   </td>
                 </tr>
               ))}

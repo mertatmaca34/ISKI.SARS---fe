@@ -281,7 +281,7 @@ export const TrendDashboard: React.FC = () => {
               onClick={handleExport}
               className="ml-auto bg-green-600 text-white px-2 py-1 rounded"
             >
-              PDF
+              PDF Olarak Kaydet
             </button>
           </div>
 
@@ -361,10 +361,10 @@ export const TrendDashboard: React.FC = () => {
           </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <DashboardCard title="Max" value={max} icon={TrendingUp} color="blue" />
-              <DashboardCard title="Min" value={min} icon={TrendingDown} color="green" />
+              <DashboardCard title="Maksimum" value={max} icon={TrendingUp} color="blue" />
+              <DashboardCard title="Minimum" value={min} icon={TrendingDown} color="green" />
               <DashboardCard title="Ortalama" value={avg.toFixed(2)} icon={Activity} color="yellow" />
-              <DashboardCard title="Toplam" value={activePoints.length} icon={Hash} color="blue" />
+              <DashboardCard title="Örnek Sayısı" value={activePoints.length} icon={Hash} color="blue" />
             </div>
         </div>
       ) : (
