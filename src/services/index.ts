@@ -12,3 +12,4 @@ export * from './systemSettingsService';
 export * from './logService';
 export * from './archiveTagService';
 export * from './trendService';
+export * from './reportTemplateArchiveTagService';
