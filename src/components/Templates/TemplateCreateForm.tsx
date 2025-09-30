@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   templateService,
   archiveTagService,
-  tagService,
+  reportTemplateArchiveTagService,
   ArchiveTagDto,
   userService,
   UserDto,
@@ -72,11 +72,9 @@ export const TemplateCreateForm: React.FC<TemplateCreateFormProps> = ({ onSucces
         sharedUserIds: Object.keys(shared),
       });
       for (const tag of Object.values(selected)) {
-        await tagService.create({
+        await reportTemplateArchiveTagService.create({
           reportTemplateId: template.id,
-          tagName: tag.tagName,
-          tagNodeId: tag.tagNodeId,
-          description: tag.description,
+          archiveTagId: tag.id,
         });
       }
       onSuccess();

@@ -4,6 +4,7 @@ import {
   tagService,
   templateService,
   archiveTagService,
+  reportTemplateArchiveTagService,
   ReportTemplateTagDto,
   ArchiveTagDto,
   userService,
@@ -81,11 +82,9 @@ export const TemplateTagManager: React.FC<TemplateTagManagerProps> = ({
   const saveTags = async () => {
     for (const tag of Object.values(selected)) {
       if (!tags.some((t) => t.tagNodeId === tag.tagNodeId)) {
-        await tagService.create({
+        await reportTemplateArchiveTagService.create({
           reportTemplateId: templateId,
-          tagName: tag.tagName,
-          tagNodeId: tag.tagNodeId,
-          description: tag.description,
+          archiveTagId: tag.id,
         });
       }
     }
